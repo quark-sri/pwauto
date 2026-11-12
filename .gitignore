@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.features-gen/
+test-results/
+reports/
+playwright-report/
+blob-report/
+.auth/
+.explore/
+.playwright-cli/
+.DS_Store
+*.log
+.lore/

@@ -1,0 +1,99 @@
+# UI tests on every push and pull request, nightly regression, and on demand.
+# Secrets: add BASE_URL and test users (<ROLE>_USERNAME / <ROLE>_PASSWORD) in
+# Settings > Secrets and variables > Actions. Without BASE_URL the example
+# suite runs, so the pipeline itself is always tested.
+name: UI tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 2 * * 1-5' # nightly regression, Mon-Fri 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: 'Tag or scenario filter, e.g. @smoke'
+        required: false
+        default: ''
+      browsers:
+        description: 'Browsers, e.g. chromium,firefox,webkit'
+        required: false
+        default: 'chromium'
+
+concurrency:
+  group: ui-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Type check, lint, Gherkin
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: cp .env.example .env
+      - run: npm run check
+
+  test:
+    name: Tests (shard ${{ matrix.shard }}/2)
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    env:
+      CI: true
+      BASE_URL: ${{ secrets.BASE_URL }}
+      INCLUDE_EXAMPLES: ${{ secrets.BASE_URL == '' }}
+      BROWSERS: ${{ inputs.browsers || 'chromium' }}
+      CUSTOMER_USERNAME: ${{ secrets.CUSTOMER_USERNAME }}
+      CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - name: Install browsers
+        run: npx playwright install --with-deps $(echo "$BROWSERS" | tr ',' ' ' | sed 's/mobile-chrome/chromium/;s/mobile-safari/webkit/')
+      - run: cp .env.example .env && sed -i '/^BASE_URL=/d;/^INCLUDE_EXAMPLES=/d;/^BROWSERS=/d' .env
+      - run: npx bddgen
+      - name: Run tests
+        run: npx playwright test --shard=${{ matrix.shard }}/2 ${{ inputs.grep && format('--grep "{0}"', inputs.grep) || '' }} ${{ github.event_name == 'pull_request' && '--grep @smoke' || '' }}
+      - name: Upload results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.shard }}
+          path: |
+            reports/
+            test-results/
+          retention-days: 14
+
+  report:
+    name: Merge reports
+    if: ${{ !cancelled() }}
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - uses: actions/download-artifact@v5
+        with: { path: shards }
+      - name: Merge Allure results and build the report
+        run: |
+          mkdir -p reports/allure-results
+          cp -r shards/*/reports/allure-results/* reports/allure-results/ || true
+          npx allure generate reports/allure-results -o reports/allure-report --clean || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-report
+          retention-days: 30

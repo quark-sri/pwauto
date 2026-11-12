@@ -1,0 +1,7 @@
+node_modules
+.features-gen
+reports
+test-results
+.explore
+package-lock.json
+*.md

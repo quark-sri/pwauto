@@ -1,0 +1,42 @@
+# domainlore configuration. See https://github.com/quark-sri/domainlore
+[knowledge]
+dir = "knowledge"
+
+[diagrams]
+max_nodes = 25
+
+# Describe each Area (a bounded context); the folder name is the key.
+# [areas.ordering]
+# description = "Placing and tracking customer orders"
+
+# Source documents for `lore convert`; their facts default to this basis.
+# [[sources]]
+# path = "docs"
+# basis = "intended"
+
+# Source code for `lore convert`, so a vague value can be settled from what the product does.
+# [[sources]]
+# path = "src"
+# basis = "actual"
+
+# How an agent settles an ambiguity: other sources, then the code, then ask a person.
+# [ambiguity]
+# order = ["sources", "code", "ask"]
+
+# Extra relation types, beyond the built-in ones.
+# [relations.replaces]
+# label = "replaces"
+# from = ["Entity"]
+# to = ["Entity"]
+
+[areas.account]
+description = "Customers sign in, sign out and manage their account"
+
+[areas.catalog]
+description = "Shoppers browse, search, sort and filter tools and view product details"
+
+[areas.ordering]
+description = "Shoppers collect products in a cart and check out to place an order"
+
+[areas.support]
+description = "Visitors contact the shop with questions"

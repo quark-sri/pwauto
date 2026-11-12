@@ -1,0 +1,139 @@
+# 1. Getting started
+
+This guide takes you from nothing to a first test report. No programming knowledge is needed. Each step says what to type and what you should see.
+
+## 1.1 What you need
+
+| | Minimum | Recommended |
+|---|---|---|
+| Computer | Windows 10/11, macOS 13+, Ubuntu 22.04+ (or similar Linux), WSL2 | 8 GB RAM or more |
+| Disk | 3 GB free (browsers, videos, traces) | |
+| Node.js | 20.19 | 22 or 24 LTS |
+| Git | any recent | |
+| AI agent (optional) | [Claude Code](https://claude.com/claude-code) or [OpenAI Codex CLI](https://github.com/openai/codex) | |
+
+You do **not** need Java, Python or admin rights for the framework itself. (Python's `uv` is optional, to validate the knowledge base.)
+
+## 1.2 Install Node.js and Git
+
+Open a terminal (Windows: *Terminal* or *PowerShell*; macOS: *Terminal*; Linux: your terminal) and check:
+
+```bash
+node --version     # should print v22.x or v24.x (at least v20.19)
+git --version
+```
+
+If one is missing:
+
+| | Windows | macOS | Ubuntu / Debian |
+|---|---|---|---|
+| Node.js | `winget install OpenJS.NodeJS.LTS` | `brew install node@24` or the installer from nodejs.org | `curl -fsSL https://deb.nodesource.com/setup_24.x \| sudo -E bash -` then `sudo apt-get install -y nodejs` |
+| Git | `winget install Git.Git` | `xcode-select --install` | `sudo apt-get install -y git` |
+
+Close and reopen the terminal after installing. No admin rights? Use [fnm](https://github.com/Schniz/fnm) or nvm to install Node.js in your user folder.
+
+## 1.3 Get the project and set it up
+
+```bash
+git clone https://github.com/quark-sri/pwauto.git
+cd pwauto
+npm run setup
+```
+
+`npm run setup` installs the packages and the Playwright browsers, creates your `.env` settings file and ends with a **doctor** report of your machine:
+
+```text
+Required
+  ✅ Node.js                            24.21.0
+  ✅ npm                                11.19.0
+  ✅ git                                git version 2.55.0
+Browsers
+  ✅ chromium                           installed
+...
+✅ Ready. Next: npm run test:smoke
+```
+
+Run `npm run doctor` at any time to check again. Every ❌ line shows the command that fixes it.
+
+> **Linux:** if a browser does not start, install its system libraries once: `sudo npx playwright install-deps`.
+> **Company network:** see [Troubleshooting](10-troubleshooting.md#company-network-proxy-certificates).
+
+## 1.4 Run the example
+
+The project contains a complete example against a public practice shop.
+
+```bash
+npm run env:set -- INCLUDE_EXAMPLES=true
+npm test
+```
+
+You will see each scenario pass (✓) or fail (✘). Then open the report:
+
+```bash
+npm run report
+```
+
+Click a test to see its Gherkin steps, screenshots, a video of a failure, the trace (a step-by-step replay), and the attached logs.
+
+Watch the browser while tests run: `npm run test:headed`. Explore tests in Playwright's UI with time travel: `npm run test:ui`.
+
+## 1.5 Point it at your application
+
+```bash
+npm run env:set -- BASE_URL=https://your-app.example.com
+npm run test:smoke
+```
+
+The smoke scenario (`features/app/smoke.feature`) only opens the home page and checks that it loads, so it works for every site.
+
+If your app needs a login, open `.env` in a text editor and add one pair per role (these values never leave your computer and are never committed):
+
+```dotenv
+CUSTOMER_USERNAME=jane@example.com
+CUSTOMER_PASSWORD=...
+```
+
+and describe your login form (the labels you see on screen):
+
+```dotenv
+LOGIN_PATH=/login
+LOGIN_USERNAME_FIELD=Email
+LOGIN_PASSWORD_FIELD=Password
+LOGIN_SUBMIT_BUTTON=Sign in
+LOGIN_SUCCESS=/dashboard
+```
+
+Now `Given I am logged in as a "customer"` works in any scenario.
+
+## 1.6 Work with an AI agent
+
+Install one of:
+
+```bash
+npm install -g @anthropic-ai/claude-code     # Claude Code
+npm install -g @openai/codex                  # OpenAI Codex
+```
+
+Start it **in the project folder** and ask:
+
+```text
+claude
+> /pwauto  Automate https://your-app.example.com. The most important journeys are sign in, search and checkout.
+```
+
+(Codex: `codex`, then *"Follow AGENTS.md and the pwauto skill: automate https://your-app.example.com ..."*.)
+
+The first time, Claude Code asks you to trust the project's plugins (`qestack`, `domainlore`). Accept them. What happens next is described in [AI workflow](02-ai-workflow.md).
+
+## 1.7 Without the example
+
+When you no longer need the Toolshop example:
+
+```bash
+npm run example:remove
+```
+
+## Next
+
+- [AI workflow](02-ai-workflow.md): what each agent does and what to type.
+- [Writing BDD scenarios](05-writing-bdd-scenarios.md): write and read scenarios yourself.

@@ -1,0 +1,21 @@
+---
+type: Context Map
+title: Context map
+description: The Areas of the domain and how they depend on each other.
+generated: { by: process:lore-build }
+---
+
+# Context map
+
+```mermaid
+flowchart LR
+  n_account["Account"]
+  n_catalog["Catalog"]
+  n_ordering["Ordering"]
+  n_support["Support"]
+  n_account --> n_ordering
+  n_catalog --> n_ordering
+  n_ordering --> n_catalog
+```
+
+_Arrows point from an Area to an Area it depends on._
