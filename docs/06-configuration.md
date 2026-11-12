@@ -56,7 +56,7 @@ Raise them for a slow environment rather than adding waits to tests.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `SCREENSHOT` | `on` | `on` (full page, every test), `only-on-failure`, `off`. |
+| `SCREENSHOT` | `on` | `on` (full page, every test), `only-on-failure`, `off`. CI sets screenshots, video and trace to `off`. |
 | `VIDEO` | `retain-on-failure` | `on`, `off`, `retain-on-failure`, `on-first-retry`. |
 | `TRACE` | `retain-on-failure` | same values; the trace is a full replay with DOM, network and console. |
 | `STEP_SCREENSHOTS` | `false` | Screenshot after each Gherkin step. |

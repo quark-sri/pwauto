@@ -9,9 +9,15 @@
 | Pull request | quality job (types, lint, Gherkin, skills sync) + `@smoke` on 2 shards |
 | Push to `main` | quality + all scenarios |
 | Nightly (Mon–Fri 02:00 UTC) | quality + full regression |
-| Manual (*Run workflow*) | choose a tag filter and browsers |
+| Manual (*Run workflow*) | choose a tag filter and browsers; optionally also run the reference example |
 
-Jobs: **quality** → **test** (matrix of 2 shards, uploads `reports/` and `test-results/`) → **report** (merges Allure results, uploads the Allure report).
+Jobs: **quality** → **test** (matrix of 2 shards) → **report** (merges Allure results, uploads the Allure report).
+
+The **test** job runs only when the `BASE_URL` secret is set (or a manual run asks for the example). Otherwise it is skipped with a notice, so a fresh fork is green and never depends on the public demo site.
+
+### Evidence policy: text only in CI
+
+CI sets `SCREENSHOT=off`, `VIDEO=off`, `TRACE=off` and uploads only text results: the HTML report, `results.json`, `junit.xml`, Cucumber HTML/JSON and Allure results. **Screenshots, videos and traces are produced only in local runs.** To investigate a CI failure, rerun the scenario locally (`npx playwright test --grep "<name>"`) and open `npm run report`.
 
 ### Secrets and variables
 
@@ -22,7 +28,7 @@ Jobs: **quality** → **test** (matrix of 2 shards, uploads `reports/` and `test
 | `BASE_URL` | `https://qa.my-app.example.com` |
 | `CUSTOMER_USERNAME`, `CUSTOMER_PASSWORD` | one pair per role used in scenarios (add them to the workflow `env` block too) |
 
-Without `BASE_URL` the pipeline runs the bundled example suite, so the pipeline itself is always tested.
+Without `BASE_URL` only the quality job runs (it still generates and type-checks every scenario, including the example).
 
 ### More shards or browsers
 
@@ -54,6 +60,6 @@ Use the official Playwright Docker image whose version equals `@playwright/test`
 
 - PRs run `@smoke` (minutes); `main` and nightly run everything.
 - `RETRIES=2` on CI; flaky tests are visible in the report — fix them, do not hide them.
-- Keep artifacts 14–30 days; traces and videos only on failure (defaults).
+- Keep artifacts 14–30 days. No images, videos or traces in CI; reproduce failures locally.
 - Run against a dedicated test environment with its own data; never production unless the scenarios are read-only and tagged for it.
 - Publish the run summary (`pwauto-report` skill) to the team channel.

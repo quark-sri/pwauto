@@ -1,7 +1,17 @@
-# UI tests on every push and pull request, nightly regression, and on demand.
-# Secrets: add BASE_URL and test users (<ROLE>_USERNAME / <ROLE>_PASSWORD) in
-# Settings > Secrets and variables > Actions. Without BASE_URL the example
-# suite runs, so the pipeline itself is always tested.
+# UI tests in CI.
+#
+# - quality: type check, lint, Gherkin generation, skills sync — on every push and PR.
+# - test:    runs your scenarios when the BASE_URL secret is set (PR: @smoke; main
+#            and nightly: everything). Without BASE_URL it is skipped with a notice.
+#            Manual runs can also run the reference example (public demo site).
+# - report:  merges Allure results.
+#
+# Evidence policy: CI produces NO screenshots, videos or traces. Only text
+# results are uploaded (HTML report, JUnit, JSON, Cucumber, Allure). Rich
+# evidence is for local runs (`npm test`, see docs/07-reports-and-debugging.md).
+#
+# Secrets (Settings > Secrets and variables > Actions): BASE_URL and test users
+# (<ROLE>_USERNAME / <ROLE>_PASSWORD, add each to the env block below).
 name: UI tests
 
 on:
@@ -20,6 +30,10 @@ on:
         description: 'Browsers, e.g. chromium,firefox,webkit'
         required: false
         default: 'chromium'
+      run_example:
+        description: 'Also run the reference example (public demo site)'
+        type: boolean
+        default: false
 
 concurrency:
   group: ui-tests-${{ github.ref }}
@@ -50,28 +64,54 @@ jobs:
     env:
       CI: true
       BASE_URL: ${{ secrets.BASE_URL }}
+      INCLUDE_EXAMPLES: ${{ inputs.run_example && 'true' || 'false' }}
       BROWSERS: ${{ inputs.browsers || 'chromium' }}
+      # No images or videos in CI: evidence stays local.
+      SCREENSHOT: 'off'
+      VIDEO: 'off'
+      TRACE: 'off'
+      STEP_SCREENSHOTS: 'false'
       CUSTOMER_USERNAME: ${{ secrets.CUSTOMER_USERNAME }}
       CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
     steps:
+      - name: Decide what to run
+        id: target
+        run: |
+          if [ -n "$BASE_URL" ] || [ "$INCLUDE_EXAMPLES" = "true" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::UI tests skipped: set the BASE_URL secret to test your application (or run this workflow manually with 'run_example')."
+          fi
       - uses: actions/checkout@v5
+        if: steps.target.outputs.run == 'true'
       - uses: actions/setup-node@v5
+        if: steps.target.outputs.run == 'true'
         with: { node-version: 24, cache: npm }
-      - run: npm ci
+      - if: steps.target.outputs.run == 'true'
+        run: npm ci
       - name: Install browsers
+        if: steps.target.outputs.run == 'true'
         run: npx playwright install --with-deps $(echo "$BROWSERS" | tr ',' ' ' | sed 's/mobile-chrome/chromium/;s/mobile-safari/webkit/')
-      - run: cp .env.example .env && sed -i '/^BASE_URL=/d;/^INCLUDE_EXAMPLES=/d;/^BROWSERS=/d' .env
-      - run: npx bddgen
+      - if: steps.target.outputs.run == 'true'
+        run: cp .env.example .env && sed -i '/^BASE_URL=/d;/^INCLUDE_EXAMPLES=/d;/^BROWSERS=/d' .env
+      - if: steps.target.outputs.run == 'true'
+        run: npx bddgen
       - name: Run tests
+        if: steps.target.outputs.run == 'true'
         run: npx playwright test --shard=${{ matrix.shard }}/2 ${{ inputs.grep && format('--grep "{0}"', inputs.grep) || '' }} ${{ github.event_name == 'pull_request' && '--grep @smoke' || '' }}
-      - name: Upload results
-        if: ${{ !cancelled() }}
+      - name: Upload results (text only)
+        if: ${{ !cancelled() && steps.target.outputs.run == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: results-${{ matrix.shard }}
           path: |
             reports/
-            test-results/
+            !reports/**/*.png
+            !reports/**/*.jpg
+            !reports/**/*.jpeg
+            !reports/**/*.webm
+            !reports/**/*.zip
           retention-days: 14
 
   report:
@@ -80,19 +120,27 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with: { node-version: 24, cache: npm }
-      - run: npm ci
       - uses: actions/download-artifact@v5
         with: { path: shards }
-      - name: Merge Allure results and build the report
+      - name: Check for results
+        id: results
         run: |
-          mkdir -p reports/allure-results
-          cp -r shards/*/reports/allure-results/* reports/allure-results/ || true
-          npx allure generate reports/allure-results -o reports/allure-report --clean || true
+          if ls shards/*/allure-results >/dev/null 2>&1; then echo "found=true" >> "$GITHUB_OUTPUT"; else echo "found=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v5
+        if: steps.results.outputs.found == 'true'
+        with: { path: repo }
+      - uses: actions/setup-node@v5
+        if: steps.results.outputs.found == 'true'
+        with: { node-version: 24 }
+      - name: Merge Allure results and build the report
+        if: steps.results.outputs.found == 'true'
+        run: |
+          mkdir -p allure-results
+          cp -r shards/*/allure-results/* allure-results/ || true
+          cd repo && npm ci --ignore-scripts && npx allure generate ../allure-results -o ../allure-report --clean
       - uses: actions/upload-artifact@v4
+        if: steps.results.outputs.found == 'true'
         with:
           name: allure-report
-          path: reports/allure-report
+          path: allure-report
           retention-days: 30

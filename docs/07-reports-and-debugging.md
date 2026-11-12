@@ -61,4 +61,4 @@ Usual causes: reading a list before it re-renders, acting before a single-page a
 ## 7.6 Sharing results
 
 - Ask the report agent: *"run the regression and write a summary for the team"* → `test-plan/run-summary.md`.
-- CI uploads `reports/` and `test-results/` as artifacts and builds an Allure report (see [CI/CD](09-ci-cd.md)).
+- CI uploads text results only (HTML, JUnit, JSON, Cucumber, Allure) — no screenshots, videos or traces; those are for local runs (see [CI/CD](09-ci-cd.md#evidence-policy-text-only-in-ci)).
