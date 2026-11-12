@@ -23,6 +23,7 @@ Give each audience what it needs from one run: the tester gets evidence per fail
 | Watch it run | `npm run test:headed` · `npm run test:ui` (time-travel UI) |
 | Full evidence | `VIDEO=on TRACE=on STEP_SCREENSHOTS=true npm test` |
 | Other environment | `TEST_ENV=qa npm test` (reads `.env.qa`) |
+| Reference example | `npm run test:example` |
 
 On Windows PowerShell set variables first: `$env:BROWSERS="chromium,firefox"; npm test`.
 

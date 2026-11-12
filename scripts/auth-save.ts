@@ -41,7 +41,18 @@ let login: LoginSettings = {
 let defaults = {};
 
 if (suite === 'toolshop') {
-  const { toolshopSuite } = await import('../examples/toolshop/suite.ts');
+  // A variable path keeps type checking working after `npm run example:remove`.
+  const examplePath = '../examples/toolshop/suite.ts';
+  const { toolshopSuite } = (await import(examplePath)) as {
+    toolshopSuite: {
+      use: {
+        baseURL: string;
+        testIdAttribute: string;
+        login: LoginSettings;
+        defaultUsers: Record<string, { username: string; password: string }>;
+      };
+    };
+  };
   baseURL = toolshopSuite.use.baseURL;
   testIdAttribute = toolshopSuite.use.testIdAttribute;
   login = toolshopSuite.use.login;

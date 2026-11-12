@@ -50,7 +50,6 @@ jobs:
     env:
       CI: true
       BASE_URL: ${{ secrets.BASE_URL }}
-      INCLUDE_EXAMPLES: ${{ secrets.BASE_URL == '' }}
       BROWSERS: ${{ inputs.browsers || 'chromium' }}
       CUSTOMER_USERNAME: ${{ secrets.CUSTOMER_USERNAME }}
       CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}

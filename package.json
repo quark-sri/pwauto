@@ -36,7 +36,8 @@
     "trace": "playwright show-trace",
     "env:set": "node scripts/env-set.mjs",
     "auth:save": "node --experimental-strip-types scripts/auth-save.ts",
-    "agents:update": "playwright init-skills && node -e \"require('node:fs').rmSync('.claude/skills/playwright-component-testing',{recursive:true,force:true})\" && node scripts/sync-agent-skills.mjs"
+    "agents:update": "playwright init-skills && node -e \"require('node:fs').rmSync('.claude/skills/playwright-component-testing',{recursive:true,force:true})\" && node scripts/sync-agent-skills.mjs",
+    "test:example": "node scripts/run-example.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

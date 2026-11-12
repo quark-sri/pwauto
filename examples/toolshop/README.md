@@ -1,6 +1,6 @@
-# Worked example: Toolshop
+# Reference example: Toolshop
 
-A complete pwauto suite for the public practice shop [practicesoftwaretesting.com](https://practicesoftwaretesting.com) (made for test automation training). It shows every stage's output, so you can copy the patterns for your own app.
+This example stays in the repository as a reference for testers and AI agents. A complete pwauto suite for the public practice shop [practicesoftwaretesting.com](https://practicesoftwaretesting.com) (made for test automation training). It shows every stage's output, so you can copy the patterns for your own app.
 
 | Stage | Output here |
 |---|---|
@@ -8,7 +8,7 @@ A complete pwauto suite for the public practice shop [practicesoftwaretesting.co
 | Scenarios | [`features/`](features/): 22 scenarios — sign-in, catalog search/sort/filter, product details, cart, checkout, contact |
 | Automate | [`pages/`](pages/) (page objects + components), [`steps/`](steps/), [`api/`](api/ToolshopApi.ts) (customer registration for isolated checkout data), [`fixtures.ts`](fixtures.ts), [`suite.ts`](suite.ts) |
 
-Run it: `INCLUDE_EXAMPLES=true` in `.env` (default on a fresh clone), then `npx bddgen && npx playwright test --project="toolshop-*"`.
+Run it: `npm run test:example` (add `-- --headed` to watch). It also runs with `npm test` while `BASE_URL` is empty, or with `INCLUDE_EXAMPLES=true`. It tests a public practice site: timeouts or HTTP 500 errors in `network-errors.json` mean the site is down, not that the framework is broken.
 
 Patterns worth copying:
 

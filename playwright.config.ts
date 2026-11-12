@@ -6,8 +6,9 @@
  *
  * Suites
  *   app       YOUR application: features/**, src/app/**, BASE_URL from .env
- *   toolshop  the bundled worked example (examples/toolshop), only when
- *             INCLUDE_EXAMPLES=true. It has its own URL and test users.
+ *   toolshop  the bundled reference example (examples/toolshop). It runs when
+ *             INCLUDE_EXAMPLES=true, or when no BASE_URL is set yet (fresh
+ *             clone). It has its own URL and test users.
  * Each suite runs once per browser in BROWSERS, as project "<suite>-<browser>".
  *
  * Flow: `bddgen` turns .feature files + step definitions into Playwright tests
@@ -33,7 +34,9 @@ const appSuite: Suite = {
   use: { baseURL: env.BASE_URL },
 };
 
-const suites: Suite[] = [...(env.BASE_URL ? [appSuite] : []), ...(env.INCLUDE_EXAMPLES ? [toolshopSuite] : [])];
+// With no app configured yet (fresh clone), run the reference example instead.
+const runExamples = env.INCLUDE_EXAMPLES || !env.BASE_URL;
+const suites: Suite[] = [...(env.BASE_URL ? [appSuite] : []), ...(runExamples ? [toolshopSuite] : [])];
 
 if (suites.length === 0) {
   throw new Error(

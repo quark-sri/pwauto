@@ -19,7 +19,7 @@ pwauto is a UI test automation scaffold: **Playwright + TypeScript + BDD (Gherki
 | `features/app/<area>/` | Gherkin scenarios of the app |
 | `knowledge/` | domainlore knowledge base of the app (the test oracle) |
 | `test-plan/` | test plan, traceability, reviews, bug reports, run summary |
-| `examples/toolshop/` | complete worked example (own URL), on with `INCLUDE_EXAMPLES=true` |
+| `examples/toolshop/` | reference example (own URL): copy its patterns; run with `npm run test:example` |
 | `docs/` | guides for people and agents |
 | `.features-gen/`, `reports/`, `test-results/` | generated — never edit |
 

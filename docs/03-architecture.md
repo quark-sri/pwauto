@@ -67,7 +67,7 @@ sequenceDiagram
 | Suite | Features | Steps | URL | When |
 |---|---|---|---|---|
 | `app` | `features/**` | `src/steps/common`, `src/app` | `BASE_URL` | `BASE_URL` set |
-| `toolshop` | `examples/toolshop/features` | `src/steps/common`, `examples/toolshop/steps` | its own | `INCLUDE_EXAMPLES=true` |
+| `toolshop` | `examples/toolshop/features` | `src/steps/common`, `examples/toolshop/steps` | its own | no `BASE_URL` yet, `INCLUDE_EXAMPLES=true`, or `npm run test:example` |
 
 A second application in the same repository is a new suite (copy `examples/toolshop/suite.ts`). The example suite also serves as the regression test of the core.
 

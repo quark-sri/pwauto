@@ -27,7 +27,7 @@ Start with `npm run doctor`: it checks your machine and prints a fix for each pr
 | Message | Meaning and fix |
 |---|---|
 | `Invalid test configuration. Fix these values in .env` | A setting has a wrong format; the message names it |
-| `Nothing to test: set BASE_URL …` | Set `BASE_URL` (`npm run env:set -- BASE_URL=…`) or `INCLUDE_EXAMPLES=true` |
+| `Nothing to test: set BASE_URL …` | The example was removed and no `BASE_URL` is set: `npm run env:set -- BASE_URL=…` |
 | `Missing step definitions: N` + snippets | A Gherkin step has no code. Reuse an existing sentence (`npm run steps:list`) or implement the snippet (`pwauto-automate`) |
 | `Multiple definitions matched …` | Two steps match the same sentence: make one of them more specific |
 | `No test user for role "x"` | Add `X_USERNAME` and `X_PASSWORD` to `.env` |
@@ -35,6 +35,7 @@ Start with `npm run doctor`: it checks your machine and prints a fix for each pr
 | `Timeout … waiting for …` | The element never appeared: check the screenshot; slow environment → raise `EXPECT_TIMEOUT`/`ACTION_TIMEOUT`, not sleeps |
 | Passes alone, fails in parallel | Shared data or a race: own data per scenario, wait for a condition (see [Reports and debugging](07-reports-and-debugging.md#75-flaky-tests)) |
 | `No base URL for project "app-…"` | `BASE_URL` empty for the app suite |
+| Example (`toolshop-*`) tests time out | The public practice site is slow or down (check `network-errors.json` for 5xx); try later |
 | Scenario not run at all | It is tagged `@draft` or `@manual`, or filtered by `--grep` |
 
 ## AI agents

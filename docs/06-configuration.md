@@ -14,7 +14,7 @@ Set a value without opening the file: `npm run env:set -- KEY=value`.
 | `API_URL` | — | Backend address for API data setup (optional). |
 | `TEST_ID_ATTRIBUTE` | `data-testid` | Attribute your developers use for test IDs (`data-test`, `data-qa`, `data-cy`, …). |
 | `TEST_ENV` | `local` | Name of the environment; loads `.env.<TEST_ENV>` (for example `.env.qa`). |
-| `INCLUDE_EXAMPLES` | `false` | Also run `examples/toolshop`. |
+| `INCLUDE_EXAMPLES` | `false` | Also run the reference example `examples/toolshop` with `npm test`. It runs anyway while `BASE_URL` is empty; on demand: `npm run test:example`. |
 
 ## 6.2 Login and users
 

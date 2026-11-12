@@ -26,7 +26,7 @@ Clone it, point it at a web application, and let AI agents help you go from *"he
 - **Reports**: Playwright HTML (screenshots, video, trace, logs, "fix with AI" prompt per test), Allure, Cucumber HTML, JUnit and JSON.
 - **Guardrails**: ESLint rules and an edit hook block sleeps, skips, focused tests, XPath and un-awaited calls; agents may never weaken a test to make it pass.
 - **CI**: GitHub Actions with sharding, artifacts and an Allure report.
-- **A worked example**: 22 scenarios against the public [Toolshop](https://practicesoftwaretesting.com) practice shop, with its knowledge base, page objects, API data setup and steps.
+- **A reference example** kept in the repo (`examples/toolshop/`): 22 scenarios against the public [Toolshop](https://practicesoftwaretesting.com) practice shop, with its knowledge base, page objects, API data setup and steps.
 
 ## Quick start
 
@@ -36,9 +36,10 @@ You need [Node.js 22 or 24 LTS](https://nodejs.org) and Git. Details for Windows
 git clone https://github.com/quark-sri/pwauto.git
 cd pwauto
 npm run setup                 # installs packages + browsers, creates .env, checks your machine
-npm run env:set -- INCLUDE_EXAMPLES=true
-npm test                      # runs the example suite (and your app's smoke test once BASE_URL is set)
+npm test                      # no BASE_URL yet → runs the reference example
 npm run report                # opens the HTML report
+npm run env:set -- BASE_URL=https://your-app.example.com
+npm run test:smoke            # now your app; the example stays available: npm run test:example
 ```
 
 Then, with an AI agent in the project folder:
@@ -89,7 +90,7 @@ src/app/             YOUR app: page objects, steps, API clients, fixtures
 features/app/        YOUR scenarios (.feature)
 knowledge/           YOUR app's knowledge base (domainlore)
 test-plan/           test plan, traceability, reviews, bug reports, run summary
-examples/toolshop/   complete worked example (INCLUDE_EXAMPLES=true; npm run example:remove)
+examples/toolshop/   reference example (npm run test:example; optional: npm run example:remove)
 .claude/             agents, skills, settings, hook   (.agents/skills = copy for Codex & others)
 docs/                guides
 ```

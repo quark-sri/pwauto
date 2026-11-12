@@ -60,12 +60,13 @@ Run `npm run doctor` at any time to check again. Every ❌ line shows the comman
 
 ## 1.4 Run the example
 
-The project contains a complete example against a public practice shop.
+The project contains a complete reference example against a public practice shop (`examples/toolshop/`). As long as you have not set `BASE_URL`, `npm test` runs it:
 
 ```bash
-npm run env:set -- INCLUDE_EXAMPLES=true
 npm test
 ```
+
+Later, run it any time with `npm run test:example`. It tests a public site: if that site is slow or down, its tests fail with timeouts — that is not a problem with your setup.
 
 You will see each scenario pass (✓) or fail (✘). Then open the report:
 
@@ -125,9 +126,9 @@ claude
 
 The first time, Claude Code asks you to trust the project's plugins (`qestack`, `domainlore`). Accept them. What happens next is described in [AI workflow](02-ai-workflow.md).
 
-## 1.7 Without the example
+## 1.7 Keep or remove the example
 
-When you no longer need the Toolshop example:
+The example stays in the repository as a reference for people and agents (`examples/toolshop/README.md` explains what to copy). Once `BASE_URL` is set it no longer runs with `npm test`; use `npm run test:example`. If your team prefers a clean repository:
 
 ```bash
 npm run example:remove

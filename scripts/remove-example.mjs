@@ -17,7 +17,8 @@ const configPath = 'playwright.config.ts';
 let config = readFileSync(configPath, 'utf8');
 config = config
   .replace(/^import \{ toolshopSuite \} from '\.\/examples\/toolshop\/suite';\n/m, '')
-  .replace(/, \.\.\.\(env\.INCLUDE_EXAMPLES \? \[toolshopSuite\] : \[\]\)/, '');
+  .replace(/^\/\/ With no app configured yet.*\n^const runExamples = .*\n/m, '')
+  .replace(/, \.\.\.\(runExamples \? \[toolshopSuite\] : \[\]\)/, '');
 writeFileSync(configPath, config);
 
 for (const file of ['.env', '.env.example']) {
