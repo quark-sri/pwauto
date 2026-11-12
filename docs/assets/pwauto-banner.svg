@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
   <title id="title">pwauto</title>
-  <desc id="desc">pwauto: AI-agent-ready UI test automation for any web application. Workflow: 1 Explore the app into a knowledge base, 2 write BDD scenarios, a person approves them, 3 automate them with Playwright, 4 heal failures and report. Guardrails stop weakened tests, and every run keeps evidence.</desc>
+  <desc id="desc">pwauto: AI-agent-ready UI test automation for any web application. Workflow: 1 Explore the app into a knowledge base, 2 write BDD scenarios, a person approves them, 3 automate them with Playwright, 4 heal failures and report. Tests pass for the right reason, and every run keeps evidence.</desc>
 
   <style>
     /* Stop the moving lights for readers who ask for less motion */
@@ -109,7 +109,7 @@
     <path id="flow1" d="M326 403 H378"/>
     <path id="flow2" d="M614 403 H666"/>
     <path id="flow3" d="M902 403 H954"/>
-    <path id="loopBack" d="M1072 488 C1072 586 1010 598 924 598 M356 598 C270 598 208 586 208 488"/>
+    <path id="loopBack" d="M1072 488 C1072 576 1040 598 968 598 M312 598 C240 598 208 576 208 488"/>
     <path id="loopBackMotion" d="M1072 488 C1072 586 1010 598 640 598 C270 598 208 586 208 488"/>
     <path id="gate" d="M640 403 V526"/>
   </defs>
@@ -253,5 +253,5 @@
   </g>
 
   <!-- Loop label: what keeps the tests honest -->
-  <text x="640" y="604" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" letter-spacing="2" fill="#a5f3fc">NO WEAKENED TESTS · EVIDENCE ON EVERY RUN</text>
+  <text x="640" y="604" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="16" font-weight="600" letter-spacing="1.2" fill="#a5f3fc">TESTS PASS FOR THE RIGHT REASON · EVIDENCE ON EVERY RUN</text>
 </svg>
