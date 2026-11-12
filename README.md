@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/pwauto-banner.svg" alt="pwauto: UI test automation with AI agents. Workflow: Explore the app, write BDD scenarios, you approve them, automate with Playwright, heal and report. No weakened tests, evidence on every run." width="100%">
+  <img src="docs/assets/pwauto-banner.svg" alt="pwauto: UI test automation with AI agents. Workflow: Explore the app, write BDD scenarios, you approve them, automate with Playwright, heal and report. Tests pass for the right reason, evidence on every run." width="100%">
 </p>
 
 <h1 align="center">pwauto</h1>
