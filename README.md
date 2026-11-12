@@ -26,7 +26,7 @@ Clone it, point it at a web application, and let AI agents help you go from *"he
 - **Reports**: Playwright HTML (screenshots, video, trace, logs, "fix with AI" prompt per test), Allure, Cucumber HTML, JUnit and JSON.
 - **Guardrails**: ESLint rules and an edit hook block sleeps, skips, focused tests, XPath and un-awaited calls; agents may never weaken a test to make it pass.
 - **CI**: GitHub Actions with sharding, artifacts and an Allure report.
-- **A reference example** kept in the repo (`examples/toolshop/`): 22 scenarios against the public [Toolshop](https://practicesoftwaretesting.com) practice shop, with its knowledge base, page objects, API data setup and steps.
+- **A reference example** kept in the repo (`examples/toolshop/`): 23 scenarios against the public [Toolshop](https://practicesoftwaretesting.com) practice shop, with its knowledge base, page objects, API data setup and steps.
 
 ## Quick start
 

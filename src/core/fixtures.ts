@@ -145,7 +145,13 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
   evidence: [
     async ({ page, log }, use, testInfo) => {
       const consoleErrors: string[] = [];
-      const networkErrors: { method: string; url: string; status: number | string; body?: string }[] = [];
+      const networkErrors: {
+        method: string;
+        url: string;
+        status: number | string;
+        request?: unknown;
+        body?: string;
+      }[] = [];
       const pendingBodies: Promise<void>[] = [];
       page.on('console', (m) => {
         if (m.type() === 'error') consoleErrors.push(m.text());
@@ -161,6 +167,7 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
             method: r.request().method(),
             url: r.url(),
             status: r.status(),
+            request: requestPayload(r.request().postDataBuffer()?.toString() ?? null),
           };
           networkErrors.push(entry);
           // Keep the start of the error body: it usually says what was wrong.
@@ -203,6 +210,16 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
 });
 
 export const { Given, When, Then, Step, Before, After, BeforeStep, AfterStep } = createBdd(test);
+
+/** What the page sent with a failed call: JSON with secrets masked, or the start of the text. */
+function requestPayload(postData: string | null): unknown {
+  if (!postData) return undefined;
+  try {
+    return redact(JSON.parse(postData));
+  } catch {
+    return /pass(word)?|secret|token/i.test(postData) ? '(not shown: may contain a secret)' : postData.slice(0, 300);
+  }
+}
 
 /** Restore a saved session (cookies + localStorage) into a fresh context. */
 async function applyStorageState(context: BrowserContext, state: StorageState): Promise<void> {

@@ -72,7 +72,7 @@ Use `Scenario Outline` for partitions and boundaries:
 | `@regression` | the full set | `npm run test:regression`; nightly CI |
 | `@<area>` | business area (`@cart`, `@account`) | `--grep @cart` |
 | `@negative`, `@boundary`, `@e2e`, `@a11y` | kind of test | filtering and reporting |
-| `@gap` + `@fixme` | known application bug (link the Gap page in a comment) | shown as "fixme" in reports, not as failed |
+| `@gap` + `@fixme` | known application bug (link the Gap page in a comment) | shown as "fixme" in reports, not as failed (a feature file in which **every** scenario is `@fixme`/`@skip` is not generated at all — keep at least one runnable scenario in it) |
 | `@skip`, `@only`, `@fail`, `@slow`, `@timeout:<ms>`, `@retries:<n>`, `@mode:serial` | playwright-bdd special tags | use rarely, with a reason |
 
 Run by tag: `npx playwright test --grep "@cart"`, combine: `--grep "@smoke" --grep-invert "@slow"`.

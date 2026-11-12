@@ -21,6 +21,16 @@ const paymentDetails: Partial<Record<PaymentMethod, Record<string, string>>> = {
   'Bank Transfer': { 'Bank Name': 'Test Bank', 'Account Name': 'Test Account', 'Account Number': '12345678' },
 };
 
+When('I proceed to checkout', async ({ pages }) => {
+  await pages.cart.proceed.click();
+  await pages.checkout.waitUntilReady();
+});
+
+Then('I should be told that I am already signed in', async ({ pages }) => {
+  await expect(pages.checkout.signedInMessage).toBeVisible();
+  await expect(pages.checkout.proceedSignedIn).toBeEnabled();
+});
+
 When('I pay by {string}', async ({ pages }, method: string) => {
   await pages.checkout.pay(method as PaymentMethod, paymentDetails[method as PaymentMethod]);
 });

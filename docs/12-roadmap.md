@@ -13,7 +13,7 @@
 | Guardrails | ESLint rules, PostToolUse edit hook, `.env` read denial, review personas |
 | Reporting | HTML, Allure, Cucumber HTML/JSON, JUnit, JSON; screenshots, video, trace, logs, console and network errors |
 | CI | GitHub Actions: quality gate, sharding, artifacts, Allure merge, nightly, manual |
-| Example | Toolshop: knowledge base (21 pages), 22 scenarios, page objects, API setup — stable over repeated parallel runs |
+| Example | Toolshop: knowledge base (21 pages), 23 scenarios, page objects, API setup — stable over repeated parallel runs |
 
 ## 12.2 Next
 

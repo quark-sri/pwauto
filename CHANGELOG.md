@@ -12,4 +12,4 @@ First release.
 - Guardrails: ESLint rules (no sleeps, skips, focused tests, XPath, floating promises), Claude Code edit hook, `.env` read denial.
 - Reports: Playwright HTML, Allure, Cucumber HTML/JSON, JUnit, JSON, with screenshots, video, trace, logs, console and network errors.
 - GitHub Actions pipeline with quality gate, sharding and Allure report.
-- Worked example: Toolshop (knowledge base, 22 scenarios, page objects, API setup).
+- Worked example: Toolshop (knowledge base, 23 scenarios, page objects, API setup).
