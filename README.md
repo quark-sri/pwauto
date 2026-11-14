@@ -74,7 +74,7 @@ The workflow goes through these stages. The agent stops after each stage and wai
 
 - **Agents and skills for each stage** in the open [Agent Skills](https://agentskills.io) format. They work in Claude Code, in Codex and in other agents that read `AGENTS.md` or `.agents/skills`.
 - **Playwright CLI for agents** (`npx playwright cli`). Playwright includes it, so its version always matches. It uses few tokens and needs no MCP configuration.
-- **Safe login.** You save a login session with `npm run auth:save`. The AI never sees a password.
+- **Safe login.** `npm run auth:save` reads the password itself and saves only the browser session, so agents do not need to see it. Agents are told never to read `.env`; Claude Code also blocks it with deny rules. Codex has only the written rule. Use test accounts, never production accounts.
 - **Knowledge base as the test oracle.** Every expected result comes from a [domainlore](https://github.com/quark-sri/domainlore) knowledge base of the application.
 - **Independent review** by the [qestack](https://github.com/quark-sri/qestack) panel of reviewer personas.
 

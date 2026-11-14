@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Claude Code PreToolUse hook (optional, see docs/06-configuration.md):
+ * Claude Code PreToolUse hook (enabled in .claude/settings.json):
  * asks the person before an agent edits the files that define the guardrails
  * themselves — lint rules, Playwright config, TypeScript config, agent
  * settings and hooks. Agents must not loosen these to get a green run.
  *
- * Register it in .claude/settings.json under hooks.PreToolUse with the
- * matcher "Edit|Write|MultiEdit" and the command
- * "node scripts/hooks/guard-protected.mjs".
+ * Registered in .claude/settings.json under hooks.PreToolUse with the
+ * matcher "Edit|Write|MultiEdit". Agents without hooks follow the same rule
+ * from AGENTS.md ("Without hooks").
  */
 import path from 'node:path';
 
