@@ -83,6 +83,15 @@ const docFiles = [
   ...readdirSync('docs')
     .filter((f) => f.endsWith('.md'))
     .map((f) => `docs/${f}`),
+  // The reference examples: testers copy them, so their links must work too.
+  ...(existsSync('examples') ? readdirSync('examples') : []).flatMap((name) => [
+    `examples/${name}/README.md`,
+    ...(existsSync(`examples/${name}/test-plan`)
+      ? readdirSync(`examples/${name}/test-plan`)
+          .filter((f) => f.endsWith('.md'))
+          .map((f) => `examples/${name}/test-plan/${f}`)
+      : []),
+  ]),
 ].filter((f) => existsSync(f));
 for (const file of docFiles) {
   const text = readFileSync(file, 'utf8').replace(/```[\s\S]*?```/g, '');

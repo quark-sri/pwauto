@@ -180,6 +180,20 @@ test.describe('parked scenarios', () => {
       { file: 'a.feature', line: 9, scenario: 'new idea', kind: 'draft', bug: null },
     ]);
   });
+
+  test('reports a known bug that is not skipped or has no bug ID', () => {
+    const feature = [
+      'Feature: X',
+      '  @known-bug',
+      '  Scenario: runs and fails',
+      '  @known-bug @fixme',
+      '  Scenario: no id',
+    ];
+    expect(findParked(feature.join('\n')).map((p: { problem?: string }) => p.problem)).toEqual([
+      expect.stringMatching(/without @fixme/),
+      expect.stringMatching(/no bug ID/),
+    ]);
+  });
 });
 
 test.describe('weakening guard', () => {
