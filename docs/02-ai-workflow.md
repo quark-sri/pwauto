@@ -62,10 +62,11 @@ For framework changes (new setting, SSO login, CI, reporter) use `/pwauto-framew
 | Skills | `.claude/skills/` — run as `/pwauto-…` | `.agents/skills/` — "use the pwauto-explore skill" |
 | Specialist agents | `.claude/agents/` (separate context per stage) | not needed: the main agent follows the skill |
 | Browser for agents | `npx playwright cli` + skill `playwright-cli` | the same (no configuration) |
-| Review panel | qestack plugin (enabled in `.claude/settings.json`) | qestack skills installed with `install-skills.sh --agent codex` |
-| Guardrail hook | `scripts/hooks/check-edit.mjs` after each edit | run `npm run check` (the skills ask for it) |
+| Review panel | qestack plugin (enabled in `.claude/settings.json`) | qestack skills in `~/.agents/skills/` (`install-skills.sh --agent codex --user`); runs in one session, marked "not independent" |
+| Knowledge base skills | domainlore plugin | domainlore skills in `~/.agents/skills/` (`install-skills.sh --agent codex --user`) |
+| Guardrail hook | `scripts/hooks/check-edit.mjs` after each edit | no hooks: after each edit `npx bddgen` + `npx eslint <file>`; before finishing `npm run check` |
 
-Edit skills only in `.claude/skills/`. `npm install` (and `node scripts/sync-agent-skills.mjs`) copies them to `.agents/skills/`; CI fails if the copies differ.
+Edit skills only in `.claude/skills/`. `npm install` (and `node scripts/sync-agent-skills.mjs`) copies them to `.agents/skills/`; CI fails if the copies differ. Other skill folders in `.agents/skills/` are left alone. Codex setup: [Getting started](01-getting-started.md#codex-setup).
 
 ## 2.4 The tools behind the agents
 

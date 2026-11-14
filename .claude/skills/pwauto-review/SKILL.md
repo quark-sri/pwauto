@@ -14,7 +14,9 @@ An author does not review their own work. Before scenarios are automated, indepe
 
 ## Requirements
 
-The [qestack](https://github.com/quark-sri/qestack) plugin (skills `test-review-panel`, `edge-case-hunter`, `testcase-reviewer`; reviewer agents). The project settings enable it; otherwise: `/plugin marketplace add quark-sri/qestack` and `/plugin install qestack@qestack`. In Codex or other agents: `qestack/scripts/install-skills.sh --agent codex --project .` from a qestack clone.
+The [qestack](https://github.com/quark-sri/qestack) plugin (skills `test-review-panel`, `edge-case-hunter`, `testcase-reviewer`; reviewer agents). The project settings enable it; otherwise: `/plugin marketplace add quark-sri/qestack` and `/plugin install qestack@qestack`. In Codex or other agents: the same skills in the user folder `~/.agents/skills/` (`pwauto-setup` installs them: `~/qestack/scripts/install-skills.sh --agent codex --user`).
+
+**Codex and agents without separate reviewers.** Run the `test-review-panel` skill with the same `--personas` list. It does the reviews one after the other in this session; write in `decision.md` that the review was **not independent**. Do not start a review persona that is not in the list.
 
 ## Review A — scenarios (after `pwauto-scenarios`, before automation)
 

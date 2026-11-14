@@ -55,6 +55,25 @@ function safeJson(data: unknown): string {
 
 const SECRET_KEYS = /pass(word)?|secret|token|authorization|cookie|api[-_]?key/i;
 
+/**
+ * Mask secrets inside free text (response bodies, non-JSON payloads):
+ * JSON is parsed and masked by key; otherwise bearer tokens, JWTs and
+ * key=value / "key": "value" pairs with secret-looking keys are masked.
+ */
+export function redactText(text: string): string {
+  try {
+    return JSON.stringify(redact(JSON.parse(text)));
+  } catch {
+    return text
+      .replace(/\b(Bearer|Basic)\s+[A-Za-z0-9._~+/=-]+/gi, '$1 ***')
+      .replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, '***jwt***')
+      .replace(
+        /(["']?(?:pass(?:word)?|secret|token|authorization|cookie|api[-_]?key|access_token|refresh_token)["']?\s*[:=]\s*)("[^"]*"|'[^']*'|[^\s&,;}]+)/gi,
+        '$1***',
+      );
+  }
+}
+
 /** Never write secrets to logs or reports. */
 export function redact(data: unknown): unknown {
   if (Array.isArray(data)) return data.map(redact);
@@ -64,4 +83,16 @@ export function redact(data: unknown): unknown {
     );
   }
   return data;
+}
+
+/** What the page sent with a failed call: JSON with secrets masked, or the start of the text. */
+export function requestPayload(postData: string | null): unknown {
+  if (!postData) return undefined;
+  try {
+    return redact(JSON.parse(postData));
+  } catch {
+    return /pass(word)?|secret|token/i.test(postData)
+      ? '(not shown: may contain a secret)'
+      : redactText(postData).slice(0, 300);
+  }
 }

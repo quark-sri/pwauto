@@ -7,6 +7,7 @@
  *
  *   npm run doctor            human-readable report
  *   npm run doctor -- --json  machine-readable report (for the env-setup agent)
+ *   npm run doctor -- --ai    also require what the AI workflow needs (uv for lore)
  *
  * Exit code 1 when a REQUIRED item is missing.
  */
@@ -16,6 +17,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 const asJson = process.argv.includes('--json');
+// --ai: the user works with an AI agent (pwauto skills); tools the agent workflow needs become required.
+const aiMode = process.argv.includes('--ai');
 const root = process.cwd();
 const checks = [];
 
@@ -210,6 +213,27 @@ add(
   cliSkill ? 'installed' : 'missing',
   cliSkill ? '' : 'npm run agents:update',
 );
+// Codex and other Agent Skills hosts: the qestack and domainlore skills are not plugins there.
+// pwauto installs them in the user folder ~/.agents/skills (docs/01-getting-started.md, "Codex setup").
+if (codexV || aiMode) {
+  const skillDirs = [path.join(os.homedir(), '.agents', 'skills'), path.join(root, '.agents', 'skills')];
+  const hasSkill = (name) => skillDirs.some((d) => existsSync(path.join(d, name, 'SKILL.md')));
+  for (const [name, skill, repo] of [
+    ['qestack skills (Codex)', 'test-review-panel', 'qestack'],
+    ['domainlore skills (Codex)', 'lore-use', 'domainlore'],
+  ]) {
+    const found = hasSkill(skill);
+    add(
+      'AI agents',
+      name,
+      found ? 'ok' : 'info',
+      found ? `${skill} found` : 'not found (Claude Code users get them from the plugin)',
+      found
+        ? ''
+        : `For Codex: git clone https://github.com/quark-sri/${repo} ~/${repo} && ~/${repo}/scripts/install-skills.sh --agent codex --user${process.platform === 'win32' ? ' --copy' : ''}`,
+    );
+  }
+}
 const ghV = run('gh --version')?.split('\n')[0];
 add(
   'Optional',
@@ -218,15 +242,19 @@ add(
   ghV ?? 'not found',
   ghV ? '' : 'Optional, for pull requests: https://cli.github.com',
 );
+// uv runs the domainlore `lore` CLI that validates the knowledge base (the test
+// oracle). Required for the AI workflow (--ai), optional when writing tests by hand.
 const uvV = run('uv --version') ?? run('lore --version');
+const uvInstall =
+  process.platform === 'win32'
+    ? 'winget install astral-sh.uv'
+    : 'curl -LsSf https://astral.sh/uv/install.sh | sh   (macOS: or brew install uv)';
 add(
-  'Optional',
-  'uv / lore (domainlore checks)',
-  uvV ? 'ok' : 'info',
+  aiMode ? 'AI agents' : 'Optional',
+  aiMode ? 'uv / lore (knowledge base validation)' : 'uv / lore (domainlore checks)',
+  uvV ? 'ok' : aiMode ? 'fail' : 'info',
   uvV ?? 'not found',
-  uvV
-    ? ''
-    : 'Optional: https://docs.astral.sh/uv  then  uvx --from git+https://github.com/quark-sri/domainlore lore check',
+  uvV ? '' : `${aiMode ? 'Required for the AI workflow' : 'Optional'}: ${uvInstall}`,
 );
 const javaV = run('java -version 2>&1');
 add('Optional', 'Java', 'info', javaV ? javaV.split('\n')[0] : 'not needed', '');
