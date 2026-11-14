@@ -55,7 +55,7 @@ Write scenarios that a business person can read and approve, that a machine can 
 ## Anti-patterns
 
 - UI mechanics in steps (`click`, `xpath`, `wait 3 seconds`).
-- Assertions copied from the current app behaviour when the knowledge base says otherwise (that hides the bug — tag `@gap` instead).
+- Assertions copied from the current app behaviour when the knowledge base says otherwise (that hides the bug — keep the intended result and record the bug: `@known-bug @fixme`, see pwauto-heal).
 - "Kitchen-sink" scenarios that check ten things; long `Background`s; shared accounts across scenarios that change data.
 
 ## Done when

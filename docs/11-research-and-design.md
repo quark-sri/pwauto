@@ -52,11 +52,17 @@ This page records what existing AI-agentic UI test automation projects do, what 
 | D3 | **AI at authoring time**, deterministic tests at run time | Stagehand/Midscene-style run-time AI | reproducible, fast, free runs; auditable expected results |
 | D4 | **domainlore knowledge base** as oracle | free-form notes, Playwright planner Markdown plans | sourced facts, intended vs actual, Gaps, validation with `lore check` |
 | D5 | **qestack review panel**, personas chosen explicitly, **never the Saboteur** | single reviewer; mutation testing | independent review; this project is UI automation only, no mutation testing |
-| D6 | **Suites** (`app`, examples) in one config | separate repositories | one engine; the example is the regression test of the core |
+| D6 | **Suites** (`app`, examples, `fixture`) in one config | separate repositories | one engine; the `fixture` suite (a site served by the repository) is the regression test of the core, the example shows the patterns for a real application |
 | D7 | **Generic steps + domain steps** | only domain steps; only generic steps | testers can start without code; real suites stay declarative |
 | D8 | **Evidence fixture** on every test | manual attachments | console errors and failed calls with response bodies diagnose most failures (it found the 422 address bug in the example in one run) |
 | D9 | **Configuration only through validated env** (zod) | config files per environment | one place, fail fast, CI-friendly |
 | D10 | **Skills as the single source of method**, agents as thin wrappers | long agent prompts | DRY; the same method works in agents without subagents (Codex) |
+
+| D11 | **Framework tests on a built-in fixture site**, on every pull request | run the public example in CI | no internet, no third-party outage, no blocked CI runners; a green CI always means browser tests ran |
+| D12 | **No screenshots, videos or traces in CI**, forced by the configuration | upload all evidence | evidence can hold personal data; text results are enough to see what failed, and the failure is reproduced locally with full evidence |
+| D13 | **qestack and domainlore skills for Codex in the user folder** (`~/.agents/skills`) | vendored copies in the repository | no third-party copies to keep up to date; works in all projects of the user |
+| D14 | **Node.js 22.18 or newer** | support Node.js 20 | the TypeScript helper scripts run on Node.js itself, without a build step |
+| D15 | **Known bugs stay in the suite as `@known-bug @fixme`** with a bug ID, listed by `npm run parked` | `@fail` (expected failure), deleting the scenario | the assertion is kept, the report shows "fixme", and the list stops people from forgetting them |
 
 ## 11.5 Industry standards and practices followed
 

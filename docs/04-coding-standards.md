@@ -90,7 +90,7 @@ Then('the cart total should be {string}', async ({ pages }, total: string) => {
 - Parameters: `{string}` in quotes, `{int}`, `{float}`, `{word}`; data tables for forms.
 - Reuse before writing: `npm run steps:list`. Same meaning, same sentence.
 - Share data between steps with `ctx` — never module-level variables (they leak between parallel tests).
-- No `test.skip/only/fixme` in code 🔒. A known application bug is tagged `@gap @fixme` in the feature (see the heal skill).
+- No `test.skip/only/fixme` in code 🔒. A known application bug is tagged `@known-bug @fixme` in the feature, with its bug ID in a comment; the bug report is `test-plan/bugs/BUG-NNN-<slug>.md` (an example suite: `examples/<name>/bugs/`). See the heal skill.
 
 ## 4.6 Test data
 

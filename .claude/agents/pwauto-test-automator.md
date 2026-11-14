@@ -1,6 +1,6 @@
 ---
 name: pwauto-test-automator
-description: Automates approved BDD scenarios with the pwauto framework — page objects, step definitions, API data setup — then runs them until they pass for the right reason and are stable. Use when scenarios are approved (no @draft) and need step definitions, or when the user asks to automate or implement tests.
+description: Automates approved BDD scenarios with the pwauto framework — page objects, step definitions, API data setup — then runs them until they pass for the right reason and are stable. Use when scenarios are approved (no @draft) and need step definitions, or when the user asks to automate or implement tests. Not for designing scenarios, or for diagnosing failures of existing tests (use pwauto-test-healer).
 tools: Bash, Read, Write, Edit, Glob, Grep
 model: sonnet
 skills:

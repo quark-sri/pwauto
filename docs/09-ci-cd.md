@@ -66,7 +66,7 @@ The evidence policy is the same on every CI system. Most set `CI=true` themselve
 ## 9.3 Good pipeline practice
 
 - PRs run `@smoke` (minutes); `main` and nightly run everything.
-- `RETRIES=2` on CI; flaky tests are visible in the report — fix them, do not hide them.
+- Retries: the default is 2 on CI and 0 on your machine. A test that passes only on a retry is shown as **flaky** in the report: fix it. Never raise `RETRIES` to make a run green (`.env.example` must not set it, and `npm run env:set` asks for `--confirm`).
 - Keep artifacts 14–30 days. No images, videos or traces in CI; reproduce failures locally.
 - Run against a dedicated test environment with its own data; never production unless the scenarios are read-only and tagged for it.
 - Publish the run summary (`pwauto-report` skill) to the team channel.
