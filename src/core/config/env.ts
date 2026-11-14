@@ -89,6 +89,9 @@ const schema = z.object({
   VIDEO: z.enum(['on', 'off', 'retain-on-failure', 'on-first-retry']).default('retain-on-failure'),
   TRACE: z.enum(['on', 'off', 'retain-on-failure', 'on-first-retry']).default('retain-on-failure'),
   STEP_SCREENSHOTS: bool(false),
+  // Request and response bodies of failed API calls in network-errors.json
+  // (secrets masked). Off by default on CI: bodies can hold personal data.
+  CAPTURE_NETWORK_BODIES: bool(!process.env.CI),
   A11Y_CHECKS: bool(false),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('warn'),
   DATA_SEED: z.string().optional(),
@@ -96,8 +99,12 @@ const schema = z.object({
 
 export type Env = z.infer<typeof schema>;
 
-function load(): Env {
-  const raw = Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== undefined && v.trim() !== ''));
+/**
+ * Validate settings. `source` defaults to the process environment (after the
+ * .env files are loaded); tests pass their own map. Blank values mean "not set".
+ */
+export function parseEnv(source: Record<string, string | undefined> = process.env): Env {
+  const raw = Object.fromEntries(Object.entries(source).filter(([, v]) => v !== undefined && v.trim() !== ''));
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
     const problems = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
@@ -106,4 +113,4 @@ function load(): Env {
   return parsed.data;
 }
 
-export const env: Env = load();
+export const env: Env = parseEnv();

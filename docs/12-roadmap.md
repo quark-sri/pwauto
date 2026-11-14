@@ -12,8 +12,8 @@
 | Review | qestack panel integration (no mutation testing), missing-case hunt, approval record |
 | Guardrails | ESLint rules, PostToolUse edit hook, `.env` read denial, review personas |
 | Reporting | HTML, Allure, Cucumber HTML/JSON, JUnit, JSON; screenshots, video, trace, logs, console and network errors |
-| CI | GitHub Actions: quality gate, sharding, artifacts, Allure merge, nightly, manual |
-| Example | Toolshop: knowledge base (21 pages), 23 scenarios, page objects, API setup — stable over repeated parallel runs |
+| CI | GitHub Actions: quality gate (types, lint, weakening guard, framework unit tests, skills lint); UI tests with sharding when `BASE_URL` is set; text-only artifacts (no images, videos or traces); Allure merge; nightly; manual |
+| Example | Toolshop: knowledge base (21 pages), 23 scenarios (21 run, 2 `@known-bug @fixme` for BUG-001), page objects, API setup, test plan and traceability |
 
 ## 12.2 Next
 

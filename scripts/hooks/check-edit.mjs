@@ -8,28 +8,61 @@
  *   - .ts files                       -> ESLint on that file (the coding
  *     standards: no sleeps, no skips, no XPath, awaited promises, ...)
  * Exit code 2 sends the problems back to the agent.
+ *
+ * Works on Windows, macOS and Linux. Agents without hooks (Codex and others)
+ * run `npm run check` instead.
  */
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
 
-let input = '';
-for await (const chunk of process.stdin) input += chunk;
-const file = JSON.parse(input || '{}')?.tool_input?.file_path ?? '';
-const rel = file.replace(process.cwd() + '/', '').replaceAll('\\', '/');
-if (!/^(features|src|examples)\//.test(rel) || rel.startsWith('.features-gen')) process.exit(0);
+/** Path of `file` relative to the project, with forward slashes; null when outside it. */
+export function projectRelative(file, root, p = path) {
+  if (!file) return null;
+  const rel = p.relative(root, p.resolve(root, file)).replaceAll('\\', '/');
+  return rel.startsWith('..') || p.isAbsolute(rel) ? null : rel;
+}
 
-const problems = [];
-const run = (cmd) => {
-  try {
-    execSync(cmd, { stdio: 'pipe', timeout: 90_000 });
-  } catch (e) {
-    problems.push(`$ ${cmd}\n${(e.stdout?.toString() ?? '') + (e.stderr?.toString() ?? '')}`.trim().slice(0, 4000));
+/** Which checks an edited file needs. */
+export function checksFor(rel) {
+  if (!rel || !/^(features|src|examples)\//.test(rel)) return [];
+  const checks = [];
+  if (rel.endsWith('.feature') || /\/(steps|fixtures)/.test(rel) || rel.endsWith('fixtures.ts')) checks.push('bddgen');
+  if (rel.endsWith('.ts')) checks.push('eslint');
+  return checks;
+}
+
+async function main() {
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  const root = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const file = JSON.parse(input || '{}')?.tool_input?.file_path ?? '';
+  const rel = projectRelative(file, root);
+  if (file && rel === null) {
+    console.error(`pwauto hook: ${file} is outside the project; not checked.`);
+    process.exit(0);
   }
-};
 
-if (rel.endsWith('.feature') || /\/(steps|fixtures)/.test(rel) || rel.endsWith('fixtures.ts')) run('npx bddgen');
-if (rel.endsWith('.ts')) run(`npx eslint --no-warn-ignored "${rel}"`);
+  const problems = [];
+  const run = (cmd, args) => {
+    try {
+      execFileSync(cmd, args, { cwd: root, stdio: 'pipe', timeout: 90_000, shell: process.platform === 'win32' });
+    } catch (e) {
+      const out = (e.stdout?.toString() ?? '') + (e.stderr?.toString() ?? '');
+      problems.push(`$ ${cmd} ${args.join(' ')}\n${out}`.trim().slice(0, 4000));
+    }
+  };
 
-if (problems.length) {
-  console.error(`pwauto check failed for ${rel}. Fix these before you continue:\n\n${problems.join('\n\n')}`);
-  process.exit(2);
+  for (const check of checksFor(rel)) {
+    if (check === 'bddgen') run('npx', ['bddgen']);
+    if (check === 'eslint') run('npx', ['eslint', '--no-warn-ignored', rel]);
+  }
+
+  if (problems.length) {
+    console.error(`pwauto check failed for ${rel}. Fix these before you continue:\n\n${problems.join('\n\n')}`);
+    process.exit(2);
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('check-edit.mjs')) {
+  await main();
 }

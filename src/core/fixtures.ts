@@ -14,12 +14,12 @@
  * Application suites (src/app, examples/*) extend this `test` with their own
  * page objects using `definePages()`, so all suites share one engine.
  */
-import type { BrowserContext, Page } from '@playwright/test';
+import type { BrowserContext } from '@playwright/test';
 import { createBdd, test as bddTest } from 'playwright-bdd';
 import { env } from './config/env';
 import { scanAccessibility } from './utils/a11y';
 import { dataSeed } from './utils/data-factory';
-import { Logger, redact } from './utils/logger';
+import { Logger, redact, redactText, requestPayload } from './utils/logger';
 import { getUser, type Credentials } from './utils/users';
 import { field, waitForSuccess } from './ui';
 
@@ -167,15 +167,17 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
             method: r.request().method(),
             url: r.url(),
             status: r.status(),
-            request: requestPayload(r.request().postDataBuffer()?.toString() ?? null),
+            request: env.CAPTURE_NETWORK_BODIES
+              ? requestPayload(r.request().postDataBuffer()?.toString() ?? null)
+              : undefined,
           };
           networkErrors.push(entry);
           // Keep the start of the error body: it usually says what was wrong.
-          if (type !== 'document') {
+          if (type !== 'document' && env.CAPTURE_NETWORK_BODIES) {
             pendingBodies.push(
               r
                 .text()
-                .then((t) => void (entry.body = t.slice(0, 500)))
+                .then((t) => void (entry.body = redactText(t).slice(0, 500)))
                 .catch(() => undefined),
             );
           }
@@ -211,16 +213,6 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
 
 export const { Given, When, Then, Step, Before, After, BeforeStep, AfterStep } = createBdd(test);
 
-/** What the page sent with a failed call: JSON with secrets masked, or the start of the text. */
-function requestPayload(postData: string | null): unknown {
-  if (!postData) return undefined;
-  try {
-    return redact(JSON.parse(postData));
-  } catch {
-    return /pass(word)?|secret|token/i.test(postData) ? '(not shown: may contain a secret)' : postData.slice(0, 300);
-  }
-}
-
 /** Restore a saved session (cookies + localStorage) into a fresh context. */
 async function applyStorageState(context: BrowserContext, state: StorageState): Promise<void> {
   await context.addCookies(state.cookies);
@@ -236,24 +228,4 @@ async function applyStorageState(context: BrowserContext, state: StorageState): 
   }
 }
 
-/**
- * Build a lazy page-object fixture from a registry { name: PageClass }.
- * A page object is created the first time a step uses it, once per scenario.
- */
-export function definePages<R extends Record<string, new (page: Page) => object>>(registry: R) {
-  type Pages = { [K in keyof R]: InstanceType<R[K]> };
-  return async ({ page }: { page: Page }, use: (pages: Pages) => Promise<void>): Promise<void> => {
-    const cache = new Map<keyof R, object>();
-    const pages = {} as Pages;
-    for (const key of Object.keys(registry) as (keyof R)[]) {
-      Object.defineProperty(pages, key, {
-        enumerable: true,
-        get: () => {
-          if (!cache.has(key)) cache.set(key, new registry[key]!(page));
-          return cache.get(key);
-        },
-      });
-    }
-    await use(pages);
-  };
-}
+export { definePages } from './pages/definePages';

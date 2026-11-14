@@ -2,6 +2,7 @@
 name: pwauto-scenario-designer
 description: Designs risk-based BDD scenarios in Gherkin from the knowledge base (happy, negative, boundary, role and state cases), writes them as @draft feature files with a test plan and a traceability table. Use after exploration, or when the user asks for test cases or scenarios.
 tools: Read, Write, Edit, Glob, Grep, Bash
+model: opus
 skills:
   - pwauto-scenarios
 ---

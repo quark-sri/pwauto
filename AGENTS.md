@@ -36,7 +36,16 @@ pwauto is a UI test automation scaffold: **Playwright + TypeScript + BDD (Gherki
 5. **Independent scenarios**: own data per scenario (API setup, `uniqueId()`), no order dependence.
 6. New scenarios are `@draft` until a person approves them in `pwauto-review`. Review uses the qestack panel **without the Saboteur** (no mutation testing in this project).
 7. Ask before actions with real-world effects (orders, payments, emails, deletes) unless the user confirmed a test environment.
-8. Before you finish: `npm run check` and the affected tests pass.
+8. Before you finish: `npm run check` (types, lint, weakening guard, framework unit tests, skills lint) and the affected tests pass. Agents without hooks (Codex and others): see below.
+
+## Without hooks (Codex and other agents)
+
+Claude Code runs checks automatically after each edit. Other agents do it themselves:
+
+- After you edit a `.feature` file or a step file: `npx bddgen`. After you edit a `.ts` file: `npx eslint <file>`. Fix what they report before you continue.
+- Do not edit the guardrails (`eslint.config.mjs`, `playwright.config.ts`, `tsconfig.json`, `.claude/settings.json`, `scripts/hooks/`, `scripts/guard-weakening.mjs`) unless the user asks for it.
+- Before you finish: `npm run check`.
+- qestack and domainlore skills are in `~/.agents/skills/` (setup: `docs/01-getting-started.md#codex-setup`). The review panel runs in one session: mark its result "not independent".
 
 <!-- domainlore:start -->
 ## Domain knowledge

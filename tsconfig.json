@@ -21,5 +21,5 @@
       "@examples/*": ["examples/*"]
     }
   },
-  "include": ["src/**/*.ts", "examples/**/*.ts", "scripts/**/*.ts", "playwright.config.ts", ".features-gen/**/*.ts"]
+  "include": ["src/**/*.ts", "examples/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "playwright.config.ts", ".features-gen/**/*.ts"]
 }

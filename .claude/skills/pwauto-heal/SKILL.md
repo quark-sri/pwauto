@@ -14,7 +14,7 @@ A red test is information. Find out who is wrong — the test, the application, 
 
 ## Workflow
 
-1. **Collect the failures.** Run the failing set: `npx bddgen && npx playwright test --project=app-chromium --grep "<name|tag>" --retries=0`. For each failure read, in this order:
+1. **Collect the failures.** Run the failing set: `npx bddgen && npx playwright test --project=<suite>-chromium --grep "<name|tag>" --retries=0`. Projects are named `<suite>-<browser>`: `app-chromium` for your app (exists only when `BASE_URL` is set), `toolshop-chromium` for the reference example (or `npm run test:example -- --grep "<name|tag>"`). List them with `npx playwright test --list`. For each failure read, in this order:
    - the error and the failing step (terminal or `reports/results.json`);
    - `test-results/<test>/error-context.md` (page snapshot at failure) and `test-failed-1.png`;
    - attachments: `execution-log.txt` (steps, data seed), `network-errors.json` (status + response body), `browser-console-errors.txt`, the "Fix with AI" prompt;

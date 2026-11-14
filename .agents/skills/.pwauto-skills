@@ -1,0 +1,12 @@
+# Skill folders copied from .claude/skills by scripts/sync-agent-skills.mjs. Do not edit.
+playwright-cli
+playwright-trace
+pwauto
+pwauto-automate
+pwauto-explore
+pwauto-framework
+pwauto-heal
+pwauto-report
+pwauto-review
+pwauto-scenarios
+pwauto-setup

@@ -2,6 +2,7 @@
 name: pwauto-env-setup
 description: Analyses the user's computer (Windows, macOS, Linux) and installs and verifies everything pwauto needs — Node.js check, npm packages, Playwright browsers, .env, agent skills, plugins. Use on a fresh clone, when tests cannot start, or when the user asks to set up or install.
 tools: Bash, Read, Write, Edit, Glob, Grep
+model: sonnet
 skills:
   - pwauto-setup
 ---

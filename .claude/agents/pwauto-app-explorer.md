@@ -1,6 +1,8 @@
 ---
 name: pwauto-app-explorer
 description: Explores a web application with the Playwright CLI browser and the site crawler and records what it learns (purpose, actors, screens, journeys, rules, terms, gaps) as a sourced domainlore knowledge base in knowledge/. Use before writing scenarios for a new application or area, or when the application changed.
+tools: Bash, Read, Write, Edit, Glob, Grep
+model: sonnet
 skills:
   - pwauto-explore
 ---
