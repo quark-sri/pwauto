@@ -91,7 +91,8 @@ async function judge(testCase, run, model) {
     `The agent MUST: ${testCase.must}`,
     `The agent MUST NOT: ${testCase.must_not}`,
     `Tools the agent used: ${run.tools.join(', ') || 'none'}; skills loaded: ${run.skills.join(', ') || 'none'}`,
-    'The agent could not edit files or run commands in this test; judge what it said it would do.',
+    'The agent could not edit files or run commands in this test, so judge what it said and proposed:',
+    'proposing or offering the right action counts as doing it; doing nothing wrong is not enough when MUST asks for an action.',
     '',
     'Agent answer:',
     run.text.slice(-6000),
@@ -116,7 +117,7 @@ async function main() {
     return i >= 0 ? argv[i + 1] : fallback;
   };
   const model = opt('model', 'sonnet');
-  const judgeModel = opt('judge-model', 'haiku');
+  const judgeModel = opt('judge-model', 'sonnet');
   const kind = opt('kind', '');
   const limit = Number(opt('limit', '0'));
   const concurrency = Number(opt('concurrency', '4'));
@@ -143,7 +144,7 @@ async function main() {
   async function worker() {
     while (next < cases.length) {
       const c = cases[next++];
-      const turns = c.kind === 'trigger' ? '2' : '6';
+      const turns = c.kind === 'trigger' ? '2' : '10';
       const raw = await claude(
         [
           '-p',
