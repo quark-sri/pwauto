@@ -15,12 +15,13 @@
  * page objects using `definePages()`, so all suites share one engine.
  */
 import type { BrowserContext } from '@playwright/test';
+import { existsSync, readFileSync } from 'node:fs';
 import { createBdd, test as bddTest } from 'playwright-bdd';
 import { env } from './config/env';
 import { scanAccessibility } from './utils/a11y';
 import { dataSeed } from './utils/data-factory';
 import { Logger, redact, redactText, requestPayload } from './utils/logger';
-import { getUser, type Credentials } from './utils/users';
+import { getUser, hasUser, sessionFile, type Credentials } from './utils/users';
 import { field, waitForSuccess } from './ui';
 
 /** How the generic "Given I am logged in as a <role>" step logs in. */
@@ -55,7 +56,10 @@ export interface ScenarioContext {
 }
 
 export interface Auth {
-  /** Log in as a configured role (<ROLE>_USERNAME / <ROLE>_PASSWORD). */
+  /**
+   * Log in as a configured role: through the login form with <ROLE>_USERNAME / <ROLE>_PASSWORD,
+   * or, when the role has no password, with its saved session (.auth/<role>.json).
+   */
   loginAs(role: string): Promise<Credentials>;
   /** Log in with explicit credentials, e.g. a user the test just created through the API. */
   loginWith(user: Credentials): Promise<Credentials>;
@@ -137,7 +141,17 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
       return user;
     };
     await use({
-      loginAs: (role) => loginWith(getUser(role, defaultUsers)),
+      loginAs: async (role) => {
+        // Single sign-on and MFA: a role without a password uses the session that a
+        // person saved with `npm run auth:save -- --role <role> --manual`.
+        const saved = sessionFile(role);
+        if (!hasUser(role, defaultUsers) && existsSync(saved)) {
+          log.info(`login as ${role}: using the saved session ${saved}`);
+          await applyStorageState(context, JSON.parse(readFileSync(saved, 'utf8')) as StorageState);
+          return { role, username: `saved session (${saved})`, password: '' };
+        }
+        return loginWith(getUser(role, defaultUsers));
+      },
       loginWith,
     });
   },

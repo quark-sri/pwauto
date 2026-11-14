@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import { definePages } from '../../src/core/pages/definePages';
 import { buildPerson, uniqueId } from '../../src/core/utils/data-factory';
 import { redact, redactText, requestPayload } from '../../src/core/utils/logger';
-import { getUser, roleKey } from '../../src/core/utils/users';
+import { getUser, hasUser, roleKey, sessionFile } from '../../src/core/utils/users';
 
 test.describe('users', () => {
   test('maps a role sentence to an environment prefix', () => {
@@ -35,6 +35,13 @@ test.describe('users', () => {
 
   test('a missing user names the variables to add', () => {
     expect(() => getUser('nobody here')).toThrow(/NOBODY_HERE_USERNAME and NOBODY_HERE_PASSWORD/);
+    expect(() => getUser('nobody here')).toThrow(/auth:save -- --role "nobody here" --manual/);
+  });
+
+  test('a saved session has one file per role, and a role is known by its username and password', () => {
+    expect(sessionFile('Store Admin')).toBe('.auth/store_admin.json');
+    expect(hasUser('nobody here')).toBe(false);
+    expect(hasUser('customer', { customer: { username: 'demo@example.com', password: 'demo' } })).toBe(true);
   });
 });
 

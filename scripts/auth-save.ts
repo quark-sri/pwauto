@@ -2,8 +2,13 @@
  * Log in as a role and save the browser session, so AI agents can explore
  * pages behind login with the Playwright CLI without ever seeing a password.
  *
- *   npm run auth:save -- --role customer                 your app (BASE_URL, LOGIN_* and CUSTOMER_* from .env)
- *   npm run auth:save -- --role customer --suite toolshop the bundled example
+ *   npm run auth:save -- --role customer                  your app (BASE_URL, LOGIN_* and CUSTOMER_* from .env)
+ *   npm run auth:save -- --role customer --suite toolshop  the bundled example
+ *   npm run auth:save -- --role manager --manual           single sign-on or MFA: a browser opens, YOU sign in,
+ *                                                          then press Enter in the terminal. No password in .env.
+ *
+ * Tests use the saved session too: "Given I am logged in as a manager" loads
+ * .auth/manager.json when the role has no username and password.
  *
  * Then, in the agent's shell:
  *   npx playwright cli open <BASE_URL>
@@ -19,7 +24,7 @@ import { env } from '../src/core/config/env.ts';
 import type { Suite } from '../src/core/config/suite.ts';
 import type { LoginSettings } from '../src/core/fixtures.ts';
 import { field, waitForSuccess } from '../src/core/ui.ts';
-import { getUser, roleKey } from '../src/core/utils/users.ts';
+import { getUser, sessionFile } from '../src/core/utils/users.ts';
 
 const argv = process.argv.slice(2);
 const arg = (name: string): string | undefined => {
@@ -61,8 +66,15 @@ if (!baseURL) {
   process.exit(1);
 }
 
-const user = getUser(role, defaults);
-const browser = await chromium.launch();
+const manual = argv.includes('--manual');
+let user: ReturnType<typeof getUser> | undefined;
+try {
+  user = manual ? undefined : getUser(role, defaults);
+} catch (e) {
+  console.error((e as Error).message);
+  process.exit(1);
+}
+const browser = await chromium.launch({ headless: !manual });
 const context = await browser.newContext({ baseURL });
 const { selectors } = await import('@playwright/test');
 selectors.setTestIdAttribute(testIdAttribute);
@@ -70,17 +82,25 @@ const page = await context.newPage();
 
 try {
   await page.goto(login.path);
-  await field(page, login.usernameField).fill(user.username);
-  await field(page, login.passwordField).fill(user.password);
-  await page.getByRole('button', { name: login.submitButton, exact: true }).click();
-  await waitForSuccess(page, login);
+  if (user) {
+    await field(page, login.usernameField).fill(user.username);
+    await field(page, login.passwordField).fill(user.password);
+    await page.getByRole('button', { name: login.submitButton, exact: true }).click();
+    await waitForSuccess(page, login);
+  } else {
+    // The person signs in (identity provider, MFA code, ...). The script never sees a password.
+    console.log(`A browser window is open. Sign in as the ${role} user there.`);
+    console.log('When you see the application as a signed-in user, come back here and press Enter.');
+    await new Promise<void>((resolve) => process.stdin.once('data', () => resolve()));
+    process.stdin.pause();
+  }
   mkdirSync('.auth', { recursive: true });
-  const file = `.auth/${roleKey(role).toLowerCase()}.json`;
+  const file = sessionFile(role);
   await context.storageState({ path: file });
   console.log(`Saved the ${role} session to ${file} (${new URL(page.url()).origin}).`);
 } catch (e) {
   console.error(`Login as ${role} failed: ${(e as Error).message.split('\n')[0]}`);
-  console.error('Check LOGIN_* settings and the role credentials in .env.');
+  console.error('Check LOGIN_* settings and the role credentials in .env. For single sign-on or MFA use --manual.');
   process.exitCode = 1;
 } finally {
   await browser.close();

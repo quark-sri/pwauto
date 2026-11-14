@@ -29,6 +29,8 @@ Set a value without opening the file: `npm run env:set -- KEY=value`.
 
 Login forms that are not a simple form (SSO, MFA, magic links): see [Test data and login](08-test-data-and-auth.md).
 
+Roles without a username and password use their saved session `.auth/<role>.json`, made with `npm run auth:save -- --role <role> --manual` (single sign-on, MFA). See [Test data and login](08-test-data-and-auth.md).
+
 ## 6.3 Browsers and execution
 
 | Variable | Default | Meaning |

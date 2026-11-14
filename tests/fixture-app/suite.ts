@@ -13,6 +13,7 @@ export const FIXTURE_URL = 'http://127.0.0.1:4173';
 export default defineSuite({
   name: 'fixture',
   features: 'tests/fixture-app/features/**/*.feature',
+  steps: ['tests/fixture-app/steps.ts'],
   use: {
     baseURL: FIXTURE_URL,
     testIdAttribute: 'data-testid',

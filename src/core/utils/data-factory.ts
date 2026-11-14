@@ -15,9 +15,14 @@ export const dataSeed = env.DATA_SEED ? Number(env.DATA_SEED) : Math.floor(Math.
 faker.seed(dataSeed);
 
 /** A short unique suffix: worker index + time + random, safe for parallel runs. */
+let sequence = 0;
+
 export function uniqueId(prefix = 't'): string {
   const worker = process.env.TEST_WORKER_INDEX ?? '0';
-  return `${prefix}${worker}${Date.now().toString(36)}${faker.string.alphanumeric(4).toLowerCase()}`;
+  // The counter makes ids unique inside one worker, also within the same millisecond;
+  // the worker index and the random part keep them apart across workers and runs.
+  sequence += 1;
+  return `${prefix}${worker}${Date.now().toString(36)}${sequence.toString(36)}${faker.string.alphanumeric(4).toLowerCase()}`;
 }
 
 export interface Person {

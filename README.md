@@ -102,7 +102,7 @@ For details on Windows, macOS and Linux, read [Getting started](docs/01-getting-
 
 ### Install and run
 
-1. Clone the repository and install it:
+1. For your team's test project, click **Use this template** on GitHub and clone your new repository. To only try pwauto, clone it directly. Then install it:
 
    ```bash
    git clone https://github.com/quark-sri/pwauto.git
@@ -142,7 +142,7 @@ claude            # or: codex
 
 ### Use pwauto without AI
 
-1. Write scenarios with the generic steps in `features/app/`.
+1. Write scenarios with the generic steps in `features/app/` (`npm run steps:list` shows them all).
 2. Run `npm test`.
 3. Run `npm run report` to open the report.
 
@@ -154,7 +154,7 @@ Feature: Order history
     Then I should see the "My orders" heading
 ```
 
-For more information, read [Writing BDD scenarios](docs/05-writing-bdd-scenarios.md).
+For more information, read [Writing BDD scenarios](docs/05-writing-bdd-scenarios.md). Single sign-on or MFA: `npm run auth:save -- --role customer --manual` saves a session once; see [Getting started](docs/01-getting-started.md#15-point-it-at-your-application).
 
 ## Commands
 
@@ -163,7 +163,7 @@ For more information, read [Writing BDD scenarios](docs/05-writing-bdd-scenarios
 | `npm run setup` | Installs everything and checks your computer. |
 | `npm run doctor` | Checks your computer only. |
 | `npm run env:set -- KEY=value` | Sets a value in `.env`. |
-| `npm run auth:save -- --role <role>` | Saves a login session for a user role. |
+| `npm run auth:save -- --role <role> [--manual]` | Saves a login session for a user role (`--manual`: you sign in yourself, for single sign-on or MFA). |
 | `npm test` | Runs all tests. |
 | `npm run test:smoke` | Runs the `@smoke` tests. |
 | `npm run test:example` | Runs the reference example. |

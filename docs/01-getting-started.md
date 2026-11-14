@@ -34,6 +34,10 @@ Close and reopen the terminal after installing. No admin rights? Use [fnm](https
 
 ## 1.3 Get the project and set it up
 
+**For your team's test project**, start from the template: on the [repository page](https://github.com/quark-sri/pwauto) click **Use this template → Create a new repository**, then clone your new repository. Your project gets its own history, and pwauto is not a fork.
+
+**To try pwauto** first, clone it directly:
+
 ```bash
 git clone https://github.com/quark-sri/pwauto.git
 cd pwauto
@@ -56,6 +60,7 @@ Browsers
 Run `npm run doctor` at any time to check again. Every ❌ line shows the command that fixes it.
 
 > **Linux:** if a browser does not start, install its system libraries once: `sudo npx playwright install-deps`.
+> **Same environment everywhere:** the repository has a dev container (`.devcontainer/`). Open the folder in VS Code with the Dev Containers extension, or in GitHub Codespaces, and everything is installed.
 > **Company network:** see [Troubleshooting](10-troubleshooting.md#company-network-proxy-certificates).
 
 ## 1.4 Run the example
@@ -106,7 +111,35 @@ LOGIN_SUCCESS=/dashboard
 
 Now `Given I am logged in as a "customer"` works in any scenario.
 
-## 1.6 Work with an AI agent
+**Single sign-on (Microsoft Entra ID, Okta, Google) or MFA?** Do not put a password in `.env`. Save a session once per role instead:
+
+```bash
+npm run auth:save -- --role manager --manual
+```
+
+A browser opens. Sign in as you normally do, then press Enter in the terminal. The session is saved in `.auth/manager.json` (never committed). `Given I am logged in as a "manager"` then uses this session. When the session expires, run the command again.
+
+## 1.6 What is yours and what is the framework
+
+| Yours: change freely | The framework: change only to improve pwauto itself |
+|---|---|
+| `features/app/` your scenarios | `src/core/` the engine (config, fixtures, page base class) |
+| `src/app/` your page objects, steps, API clients | `src/steps/common/` generic steps |
+| `knowledge/` your application's business rules | `scripts/`, `.claude/`, `.agents/`, `playwright.config.ts` |
+| `test-plan/` plans, reviews, bug reports | `tests/` the framework's own tests |
+| `.env`, `.auth/` your settings and sessions (never committed) | `docs/` |
+
+**Get framework updates later.** Add pwauto as a second remote once, then merge new releases:
+
+```bash
+git remote add pwauto https://github.com/quark-sri/pwauto.git
+git fetch pwauto --tags
+git merge v0.2.0 --allow-unrelated-histories   # the first time; later: git merge <new tag>
+```
+
+Conflicts appear only in framework files you changed. Read the release notes in `CHANGELOG.md` before you merge. Remove the example first if you do not need it (`npm run example:remove`), so its updates do not come back as conflicts — or keep it as a reference.
+
+## 1.7 Work with an AI agent
 
 Install one of:
 
@@ -150,7 +183,7 @@ What does not work the same in Codex:
 | Review panel | separate reviewer agents | one session, one reviewer after the other; the report says "not independent" |
 | Stage agents (`.claude/agents/`) | separate context per stage | the main agent follows the stage skill |
 
-## 1.7 Keep or remove the example
+## 1.8 Keep or remove the example
 
 The example stays in the repository as a reference for people and agents (`examples/toolshop/README.md` explains what to copy). Once `BASE_URL` is set it no longer runs with `npm test`; use `npm run test:example`. If your team prefers a clean repository:
 

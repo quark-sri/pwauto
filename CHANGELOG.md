@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- `uniqueId()` could return the same id twice within one millisecond; a per-worker counter now keeps every id unique.
 - One convention for application bugs: report in `test-plan/bugs/BUG-NNN-<slug>.md` (an example suite: `examples/<name>/bugs/`), scenario tagged `@known-bug @fixme` with the bug ID in a comment.
 - Toolshop example: the cart total check fails on an empty cart (it passed before).
 - **Node.js 22.18 or newer is required** (was 20.19): the explore and login-session scripts need it. The doctor reads the minimum from `package.json`.
@@ -22,6 +23,10 @@
 - `npm install` (skills sync) refreshes only the pwauto skill folders in `.agents/skills/` and keeps skills that other tools installed there; `npm run check` checks only the pwauto folders. A skill removed from `.claude/skills/` is still removed from the copy (`.agents/skills/.pwauto-skills`).
 
 ### Added
+- Dev container (`.devcontainer/devcontainer.json`, official Playwright image) for VS Code and GitHub Codespaces.
+- Ready-to-copy pipeline files for GitLab CI, Azure DevOps and Jenkins in `docs/ci/` (not run by this project's CI).
+- Single sign-on and MFA without code: `npm run auth:save -- --role <role> --manual` opens a browser, a person signs in, the session is saved; `Given I am logged in as a "<role>"` uses it when the role has no password. Covered by a framework browser test.
+- Getting started: start your team's project from the template; what is yours and what is the framework; how to merge framework updates.
 - Open-source project files: code of conduct, security policy, issue forms, code owners, `NOTICE`, `.editorconfig`, `.nvmrc`, recommended VS Code extensions, weekly Dependabot updates.
 - CI runs `npm run setup` (the command a new user runs) on Ubuntu and Windows before the framework browser tests.
 - `npm run parked` lists the scenarios that do not run: known bugs (`@known-bug @fixme`) with their bug ID, and drafts. `npm run check` prints the list and fails when a known bug has no bug ID or no bug report.

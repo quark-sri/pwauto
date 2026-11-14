@@ -1,0 +1,40 @@
+// pwauto pipeline for Jenkins. Copy to Jenkinsfile in your repository root.
+// NOT run by the pwauto project's own CI: check it in your Jenkins before you rely on it.
+//
+// Credentials (Manage Jenkins > Credentials): a "Secret text" pwauto-base-url, and a
+// "Username with password" pwauto-customer per role. Needs the Docker Pipeline plugin
+// and the JUnit plugin.
+// Evidence policy: text results only (CI=true keeps screenshots, videos and traces off).
+
+pipeline {
+  // Keep the version equal to @playwright/test in package.json.
+  agent { docker { image 'mcr.microsoft.com/playwright:v1.65.0-noble' } }
+  environment {
+    CI = 'true'
+    HOME = "${env.WORKSPACE}"
+  }
+  stages {
+    stage('Install') {
+      steps { sh 'npm ci && cp .env.example .env' }
+    }
+    stage('Check') {
+      steps { sh 'npm run check' }
+    }
+    stage('UI tests') {
+      environment {
+        BASE_URL = credentials('pwauto-base-url')
+        CUSTOMER = credentials('pwauto-customer')
+        CUSTOMER_USERNAME = "${CUSTOMER_USR}"
+        CUSTOMER_PASSWORD = "${CUSTOMER_PSW}"
+      }
+      steps { sh 'npx bddgen && npx playwright test' }
+    }
+  }
+  post {
+    always {
+      sh 'node scripts/check-ci-evidence.mjs'
+      junit allowEmptyResults: true, testResults: 'reports/junit.xml'
+      archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+    }
+  }
+}
