@@ -28,7 +28,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "typecheck": "bddgen && tsc --noEmit",
-    "check": "npm run typecheck && npm run lint && node scripts/guard-weakening.mjs && npm run test:unit && node scripts/lint-skills.mjs && node scripts/sync-agent-skills.mjs --check",
+    "check": "npm run typecheck && npm run lint && node scripts/guard-weakening.mjs && npm run test:unit && node scripts/lint-skills.mjs && node scripts/sync-agent-skills.mjs --check && node scripts/list-parked.mjs",
     "clean": "node -e \"for (const d of ['reports','test-results','.features-gen']) require('node:fs').rmSync(d,{recursive:true,force:true})\"",
     "test:app": "bddgen && playwright test --project='app-*'",
     "steps:list": "bddgen export",
@@ -41,7 +41,8 @@
     "test:framework": "node scripts/run-framework-tests.mjs",
     "guard": "node scripts/guard-weakening.mjs",
     "test:unit": "playwright test -c tests/unit",
-    "lint:skills": "node scripts/lint-skills.mjs"
+    "lint:skills": "node scripts/lint-skills.mjs",
+    "parked": "node scripts/list-parked.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

@@ -39,7 +39,7 @@ Run `/qestack:test-review-panel <changed step, page and feature files> --persona
 
 ## Without qestack
 
-If the plugin is not available and cannot be installed, review with the checklist below yourself, one lens at a time, and state in `decision.md` that the review was **not independent**.
+If the plugin is not available and cannot be installed, review with the checklist below yourself, one lens at a time. Show the user the checklist with your answer and the evidence (file and line) for each point, and state in `decision.md` that the review was **not independent**. If you can start a separate agent, give it only the feature files and the knowledge pages, not your own reasoning.
 
 - Expected result is the intended behaviour from `knowledge/`, with exact text/values?
 - Negative, boundary, role and state cases present for each rule?

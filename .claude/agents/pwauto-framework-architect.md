@@ -1,6 +1,6 @@
 ---
 name: pwauto-framework-architect
-description: Owns the pwauto framework core (src/core, src/steps/common, playwright.config.ts, CI, lint rules) and extends it without breaking its architecture — configuration, fixtures, utilities, authentication, reporters, browsers, environments, pipelines. Use for any change to the framework itself rather than to one application's tests.
+description: Owns the pwauto framework core (src/core, src/steps/common, playwright.config.ts, CI, lint rules) and extends it without breaking its architecture — configuration, fixtures, utilities, authentication, reporters, browsers, environments, pipelines. Use for any change to the framework itself rather than to one application's tests. Not for one application's page objects, steps or scenarios (use pwauto-test-automator).
 tools: Bash, Read, Write, Edit, Glob, Grep
 model: opus
 skills:

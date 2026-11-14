@@ -21,5 +21,5 @@
 - [ ] `npm run check` passes (types, lint, weakening guard, unit tests, skills lint, skills sync)
 - [ ] Affected scenarios pass, and `npm run test:flaky-check -- --project=<suite>-chromium --grep <tag>` is green
 - [ ] No secrets in the change; credentials only in `.env` / CI secrets
-- [ ] Application bugs found are recorded (bug report + Gap or open question + `@known-bug @fixme`)
+- [ ] Application bugs found are recorded (`test-plan/bugs/BUG-NNN-<slug>.md` + Gap or open question + `@known-bug @fixme` with the bug ID)
 - [ ] `CHANGELOG.md` updated under `## Unreleased` for user-visible changes

@@ -48,7 +48,8 @@ On Windows PowerShell set variables first: `$env:BROWSERS="chromium,firefox"; np
    | Total | Passed | Failed | Flaky | Skipped/fixme | Pass rate |
    ## Failures (by cause)          test · step · cause class (see pwauto-heal) · evidence link
    ## Flaky (passed on retry)      test · retries · first error
-   ## Known application bugs       @gap scenarios with their Gap page
+   ## Known application bugs       from `npm run parked`: each @known-bug @fixme scenario with its bug ID and report
+   ## Drafts waiting for approval  from `npm run parked`: each @draft scenario
    ## Coverage                     areas/rules in knowledge/ with no passing scenario
    ## Slowest scenarios            top 5 with duration
    ```

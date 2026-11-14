@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { findMedia } from '../../scripts/check-ci-evidence.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
+import { findParked } from '../../scripts/list-parked.mjs';
+// @ts-expect-error -- plain .mjs scripts without type declarations
 import { setValue } from '../../scripts/env-set.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { findWeakening } from '../../scripts/guard-weakening.mjs';
@@ -157,6 +159,40 @@ test.describe('CI evidence check', () => {
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
+  });
+});
+
+test.describe('parked scenarios', () => {
+  test('lists known bugs with their bug ID and drafts, not the scenarios that run', () => {
+    const feature = [
+      '@shop',
+      'Feature: Checkout',
+      '  @smoke',
+      '  Scenario: runs',
+      '  # See bugs/BUG-007-address.md',
+      '  @regression @known-bug @fixme',
+      '  Scenario Outline: pay by <method>',
+      '  @draft',
+      '  Scenario: new idea',
+    ].join('\n');
+    expect(findParked(feature, 'a.feature')).toEqual([
+      { file: 'a.feature', line: 7, scenario: 'pay by <method>', kind: 'known bug', bug: 'BUG-007' },
+      { file: 'a.feature', line: 9, scenario: 'new idea', kind: 'draft', bug: null },
+    ]);
+  });
+
+  test('reports a known bug that is not skipped or has no bug ID', () => {
+    const feature = [
+      'Feature: X',
+      '  @known-bug',
+      '  Scenario: runs and fails',
+      '  @known-bug @fixme',
+      '  Scenario: no id',
+    ];
+    expect(findParked(feature.join('\n')).map((p: { problem?: string }) => p.problem)).toEqual([
+      expect.stringMatching(/without @fixme/),
+      expect.stringMatching(/no bug ID/),
+    ]);
   });
 });
 

@@ -7,6 +7,7 @@
  *                    file (docs/, scripts/, src/core/, examples/) exists.
  *   agents         - name, description, tools, model and an existing skill.
  *   evals          - every pwauto skill has positive and negative trigger cases.
+ *   docs           - relative links in README.md, AGENTS.md and docs/ point to existing files.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -73,6 +74,35 @@ for (const agent of readdirSync('.claude/agents')) {
   checkReferences(file, text);
 }
 
+// Docs: every relative Markdown link points to a file that exists (stops doc drift).
+const docFiles = [
+  'README.md',
+  'AGENTS.md',
+  'CONTRIBUTING.md',
+  'CHANGELOG.md',
+  ...readdirSync('docs')
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => `docs/${f}`),
+  // The reference examples: testers copy them, so their links must work too.
+  ...(existsSync('examples') ? readdirSync('examples') : []).flatMap((name) => [
+    `examples/${name}/README.md`,
+    ...(existsSync(`examples/${name}/test-plan`)
+      ? readdirSync(`examples/${name}/test-plan`)
+          .filter((f) => f.endsWith('.md'))
+          .map((f) => `examples/${name}/test-plan/${f}`)
+      : []),
+  ]),
+].filter((f) => existsSync(f));
+for (const file of docFiles) {
+  const text = readFileSync(file, 'utf8').replace(/```[\s\S]*?```/g, '');
+  for (const m of text.matchAll(/\]\(([^)\s]+)\)/g)) {
+    const target = m[1].split('#')[0];
+    if (!target || /^[a-z]+:/i.test(target)) continue; // same-page anchor, or http:, mailto:
+    if (!existsSync(path.join(path.dirname(file), decodeURIComponent(target))))
+      problems.push(`${file}: link to ${m[1]} points to a file that does not exist`);
+  }
+}
+
 const evalFile = 'evals/skills.jsonl';
 if (existsSync(evalFile)) {
   const cases = readFileSync(evalFile, 'utf8')
@@ -100,4 +130,6 @@ if (problems.length) {
   console.error(`Agent layer problems:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`lint-skills: ok (${skills.length} skills, ${readdirSync('.claude/agents').length} agents)`);
+console.log(
+  `lint-skills: ok (${skills.length} skills, ${readdirSync('.claude/agents').length} agents, ${docFiles.length} documents)`,
+);

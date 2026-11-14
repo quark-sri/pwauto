@@ -36,12 +36,15 @@ Start with `npm run doctor`: it checks your machine and prints a fix for each pr
 | Passes alone, fails in parallel | Shared data or a race: own data per scenario, wait for a condition (see [Reports and debugging](07-reports-and-debugging.md#75-flaky-tests)) |
 | `No base URL for project "app-…"` | `BASE_URL` empty for the app suite |
 | Example (`toolshop-*`) tests time out | The public practice site is slow or down (check `network-errors.json` for 5xx); try later |
-| Scenario not run at all | It is tagged `@draft` or `@manual`, or filtered by `--grep` |
+| Scenario not run at all | It is tagged `@draft` or `@manual`, or filtered by `--grep`. `npm run parked` lists the drafts and the known-bug scenarios |
+| `Unsupported engine` or a script stops with a syntax error | Node.js is older than 22.18: install Node.js 22 or 24 (`npm run doctor` shows your version) |
+| Windows: `npm run check` reports "no frontmatter" or files show as changed after a clone | Line ends were converted to CRLF by an old clone: run `git add --renormalize .` (the repository keeps LF through `.gitattributes`) |
 
 ## AI agents
 
 | Problem | Fix |
 |---|---|
+| Codex does not find the review panel or `lore-use` skill | They are installed in your user folder, not in the project: see [Codex setup](01-getting-started.md#codex-setup); `npm run doctor -- --ai` shows if they are found |
 | Skills not listed in Claude Code | Start `claude` in the project folder; skills are in `.claude/skills/` |
 | Codex does not see the skills | `npm install` (copies them to `.agents/skills/`) or `node scripts/sync-agent-skills.mjs` |
 | `/qestack:test-review-panel` unknown | `/plugin marketplace add quark-sri/qestack` then `/plugin install qestack@qestack` |

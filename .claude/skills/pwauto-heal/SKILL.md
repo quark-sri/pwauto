@@ -34,8 +34,8 @@ A red test is information. Find out who is wrong — the test, the application, 
 
 4. **Record an application bug** (class e):
    - `knowledge/conflicts/<slug>.md` with `type: Gap` (intended source vs actual observation), then `lore build && lore check`;
-   - a bug report in `test-plan/bugs/<slug>.md`: title, steps (the scenario), expected (with source), actual, evidence (report path, screenshot, network body), environment, data seed;
-   - tag the scenario `@gap @fixme` with a comment linking the Gap — the test stays and shows as "fixme" in the report, so nobody forgets it. Never delete it.
+   - a bug report in `test-plan/bugs/BUG-NNN-<slug>.md` (next free number; an example suite uses `examples/<name>/bugs/`): title, steps (the scenario), expected (with source), actual, evidence (report path, screenshot, network body), environment, data seed;
+   - tag the scenario `@known-bug @fixme` and put a comment with the bug ID above the tags (`# BUG-NNN: <one line>, see test-plan/bugs/...`) — the test stays and shows as "fixme" in the report, so nobody forgets it. Never delete it.
 5. **Verify.** Re-run the fixed tests with `--repeat-each=5`. Run the whole affected feature once. Run `npm run check`.
 6. **Report** a table to the user: test, class, root cause (one line, with evidence), action, result.
 
@@ -46,4 +46,4 @@ Change an expected text/value to the current app output without a source · remo
 ## Done when
 
 - Every failure has a class and evidence; test bugs are fixed and stable over 5 repeats.
-- Every application bug has a Gap page, a bug report and an `@gap @fixme` scenario; the user has the table.
+- Every application bug has a Gap page, a bug report and a `@known-bug @fixme` scenario with its bug ID (`npm run parked` lists them); the user has the table.

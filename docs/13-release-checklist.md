@@ -6,6 +6,8 @@ Run before tagging a release. Record the result in `CHANGELOG.md` (date, OS, Nod
 
 - [ ] `npm run check` passes (types, lint, weakening guard, unit tests, skills lint, skills sync)
 - [ ] CI is green on `main`
+- [ ] `npm run test:framework` passes (fixture site)
+- [ ] `npm run parked`: each known bug has a bug ID; drafts are expected
 - [ ] `npm run test:example` on Chromium, Firefox and WebKit: record passed / fixme / failed and the date
 - [ ] `npm run test:flaky-check -- --project=toolshop-chromium` green
 
@@ -27,6 +29,7 @@ Also run the behaviour cases in `evals/skills.jsonl` and record them in `evals/r
 
 ## Release
 
+0. Update the tested commits in `docs/12-roadmap.md` (External dependencies).
 1. Move `## Unreleased` in `CHANGELOG.md` to `## <version> — <date>`.
 2. Bump `version` in `package.json` and the skills' `metadata.version`.
 3. The owner tags and publishes.
