@@ -21,6 +21,9 @@
     <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <filter id="lineGlow" filterUnits="userSpaceOnUse" x="0" y="0" width="1280" height="700">
+      <feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <filter id="textGlow" x="-20%" y="-50%" width="140%" height="200%">
       <feGaussianBlur stdDeviation="8" in="SourceAlpha" result="a"/><feFlood flood-color="#a5f3fc" flood-opacity="0.55"/>
       <feComposite operator="in" in2="a" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -40,6 +43,9 @@
       <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
     <linearGradient id="stream" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/><stop offset="0.5" stop-color="#818cf8"/><stop offset="1" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="streamU" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1280" y2="0">
       <stop offset="0" stop-color="#22d3ee"/><stop offset="0.5" stop-color="#818cf8"/><stop offset="1" stop-color="#c084fc"/>
     </linearGradient>
     <linearGradient id="streamV" x1="0" y1="0" x2="0" y2="1">
@@ -84,17 +90,17 @@
 <text x="76" y="204.04" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="600" fill="#a5f3fc" text-anchor="start">&gt; /pwauto  Automate https://your-app.example.com</text>
 <g transform="translate(972 190) scale(0.75)" fill="none" stroke="#6ee7b7" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 22 C4 15 20 15 20 22"/></g>
 <text x="1240" y="204" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#6ee7b7" text-anchor="end" letter-spacing="2">YOU DECIDE AT EVERY GATE</text>
-<path d="M196 294.0 H214" fill="none" stroke="url(#stream)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#softGlow)"/>
+<path d="M196 294.0 H214" fill="none" stroke="url(#streamU)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#lineGlow)"/>
 <circle class="mover" r="4" fill="url(#sphere)"><animateMotion dur="1.4s" begin="0.0s" repeatCount="indefinite"><mpath href="#p2" xlink:href="#p2"/></animateMotion></circle>
-<path d="M370 294.0 H388" fill="none" stroke="url(#stream)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#softGlow)"/>
+<path d="M370 294.0 H388" fill="none" stroke="url(#streamU)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#lineGlow)"/>
 <circle class="mover" r="4" fill="url(#sphere)"><animateMotion dur="1.4s" begin="0.3s" repeatCount="indefinite"><mpath href="#p3" xlink:href="#p3"/></animateMotion></circle>
-<path d="M544 294.0 H562" fill="none" stroke="url(#stream)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#softGlow)"/>
+<path d="M544 294.0 H562" fill="none" stroke="url(#streamU)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#lineGlow)"/>
 <circle class="mover" r="4" fill="url(#sphere)"><animateMotion dur="1.4s" begin="0.6s" repeatCount="indefinite"><mpath href="#p4" xlink:href="#p4"/></animateMotion></circle>
-<path d="M718 294.0 H736" fill="none" stroke="url(#stream)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#softGlow)"/>
+<path d="M718 294.0 H736" fill="none" stroke="url(#streamU)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#lineGlow)"/>
 <circle class="mover" r="4" fill="url(#sphere)"><animateMotion dur="1.4s" begin="0.8999999999999999s" repeatCount="indefinite"><mpath href="#p5" xlink:href="#p5"/></animateMotion></circle>
-<path d="M892 294.0 H910" fill="none" stroke="url(#stream)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#softGlow)"/>
+<path d="M892 294.0 H910" fill="none" stroke="url(#streamU)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#lineGlow)"/>
 <circle class="mover" r="4" fill="url(#sphere)"><animateMotion dur="1.4s" begin="1.2s" repeatCount="indefinite"><mpath href="#p6" xlink:href="#p6"/></animateMotion></circle>
-<path d="M1066 294.0 H1084" fill="none" stroke="url(#stream)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#softGlow)"/>
+<path d="M1066 294.0 H1084" fill="none" stroke="url(#streamU)" stroke-width="3" stroke-opacity="1" stroke-linecap="round" filter="url(#lineGlow)"/>
 <circle class="mover" r="4" fill="url(#sphere)"><animateMotion dur="1.4s" begin="1.5s" repeatCount="indefinite"><mpath href="#p7" xlink:href="#p7"/></animateMotion></circle>
 <g filter="url(#shadow)"><g clip-path="url(#c8)"><rect width="1280" height="640" fill="url(#bg)"/>
   <use href="#blobs" xlink:href="#blobs" filter="url(#frost)"/><rect x="40" y="228" width="156" height="132" fill="url(#glassFill)"/><rect x="40" y="228" width="156" height="52.800000000000004" fill="url(#sheen)"/></g>
