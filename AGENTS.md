@@ -36,7 +36,7 @@ pwauto is a UI test automation scaffold: **Playwright + TypeScript + BDD (Gherki
 5. **Independent scenarios**: own data per scenario (API setup, `uniqueId()`), no order dependence.
 6. New scenarios are `@draft` until a person approves them in `pwauto-review`. Review uses the qestack panel **without the Saboteur** (no mutation testing in this project).
 7. Ask before actions with real-world effects (orders, payments, emails, deletes) unless the user confirmed a test environment.
-8. Before you finish: `npm run check` and the affected tests pass.
+8. Before you finish: `npm run check` (types, lint, weakening guard, framework unit tests, skills lint) and the affected tests pass. Agents without hooks (Codex and others) run `npm run check` after each change.
 
 <!-- domainlore:start -->
 ## Domain knowledge

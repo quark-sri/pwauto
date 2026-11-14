@@ -44,8 +44,12 @@ jobs:
     name: Type check, lint, Gherkin
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # The weakening guard compares the change with its base (PR base or previous push).
+      GUARD_BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD' }}
     steps:
       - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v5
         with: { node-version: 24, cache: npm }
       - run: npm ci

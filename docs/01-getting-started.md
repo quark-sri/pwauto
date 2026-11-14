@@ -12,7 +12,7 @@ This guide takes you from nothing to a first test report. No programming knowled
 | Git | any recent | |
 | AI agent (optional) | [Claude Code](https://claude.com/claude-code) or [OpenAI Codex CLI](https://github.com/openai/codex) | |
 
-You do **not** need Java, Python or admin rights for the framework itself. (Python's `uv` is optional, to validate the knowledge base.)
+You do **not** need Java, Python or admin rights for the framework itself. With an AI agent you also need [uv](https://docs.astral.sh/uv/) (`winget install astral-sh.uv`, `brew install uv`, or `curl -LsSf https://astral.sh/uv/install.sh | sh`): it runs the `lore` tool that validates the knowledge base. Check with `npm run doctor -- --ai`.
 
 ## 1.2 Install Node.js and Git
 

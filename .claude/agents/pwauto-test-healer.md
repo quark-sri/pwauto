@@ -1,6 +1,8 @@
 ---
 name: pwauto-test-healer
 description: Diagnoses failing or flaky pwauto tests from the report evidence, classifies each failure (locator, timing, test data, flaky environment, application bug, wrong expectation, setup), fixes test bugs without weakening tests and records application bugs as Gaps and bug reports. Use when tests fail or are flaky.
+tools: Bash, Read, Write, Edit, Glob, Grep
+model: opus
 skills:
   - pwauto-heal
 ---

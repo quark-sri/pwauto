@@ -123,4 +123,4 @@ See [Writing BDD scenarios](05-writing-bdd-scenarios.md). In short: declarative,
 - [ ] Locators follow 4.2; no sleeps; no assertions in page objects
 - [ ] Own data; passes alone, in parallel and 5 times in a row (`npm run test:flaky-check`)
 - [ ] Fails with a clear message when the behaviour breaks
-- [ ] `npm run check` passes
+- [ ] `npm run check` passes (types, lint, weakening guard, framework unit tests, skills lint, skills sync)

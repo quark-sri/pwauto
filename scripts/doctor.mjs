@@ -7,6 +7,7 @@
  *
  *   npm run doctor            human-readable report
  *   npm run doctor -- --json  machine-readable report (for the env-setup agent)
+ *   npm run doctor -- --ai    also require what the AI workflow needs (uv for lore)
  *
  * Exit code 1 when a REQUIRED item is missing.
  */
@@ -16,6 +17,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 const asJson = process.argv.includes('--json');
+// --ai: the user works with an AI agent (pwauto skills); tools the agent workflow needs become required.
+const aiMode = process.argv.includes('--ai');
 const root = process.cwd();
 const checks = [];
 
@@ -218,15 +221,19 @@ add(
   ghV ?? 'not found',
   ghV ? '' : 'Optional, for pull requests: https://cli.github.com',
 );
+// uv runs the domainlore `lore` CLI that validates the knowledge base (the test
+// oracle). Required for the AI workflow (--ai), optional when writing tests by hand.
 const uvV = run('uv --version') ?? run('lore --version');
+const uvInstall =
+  process.platform === 'win32'
+    ? 'winget install astral-sh.uv'
+    : 'curl -LsSf https://astral.sh/uv/install.sh | sh   (macOS: or brew install uv)';
 add(
-  'Optional',
-  'uv / lore (domainlore checks)',
-  uvV ? 'ok' : 'info',
+  aiMode ? 'AI agents' : 'Optional',
+  aiMode ? 'uv / lore (knowledge base validation)' : 'uv / lore (domainlore checks)',
+  uvV ? 'ok' : aiMode ? 'fail' : 'info',
   uvV ?? 'not found',
-  uvV
-    ? ''
-    : 'Optional: https://docs.astral.sh/uv  then  uvx --from git+https://github.com/quark-sri/domainlore lore check',
+  uvV ? '' : `${aiMode ? 'Required for the AI workflow' : 'Optional'}: ${uvInstall}`,
 );
 const javaV = run('java -version 2>&1');
 add('Optional', 'Java', 'info', javaV ? javaV.split('\n')[0] : 'not needed', '');

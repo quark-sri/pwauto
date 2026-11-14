@@ -84,9 +84,9 @@ Turn approved scenarios into fast, stable, readable Playwright tests that fail o
    - Share values between steps with `ctx.set/get`, never module-level variables.
    - Data: `buildPerson()`, `uniqueId()`, or an app builder. Data that must exist first: create it through an API client (`request` fixture), not through the UI.
    - Login: `Given I am logged in as a "<role>"` (generic, cached per worker) or `auth.loginWith(...)` for a user the test created.
-6. **Run the narrowest set** first: `npx bddgen && npx playwright test --project=app-chromium --grep "<scenario name or @tag>"`. Read failures in the terminal; for details open `npm run report` (screenshots, video, trace, `execution-log.txt`, `network-errors.json`, the "Fix with AI" prompt).
+6. **Run the narrowest set** first: `npx bddgen && npx playwright test --project=<suite>-chromium --grep "<scenario name or @tag>"`. Projects are named `<suite>-<browser>`: `app-chromium` for your app (exists only when `BASE_URL` is set), `toolshop-chromium` for the reference example (or `npm run test:example -- --grep "<name|tag>"`). List them with `npx playwright test --list`. Read failures in the terminal; for details open `npm run report` (screenshots, video, trace, `execution-log.txt`, `network-errors.json`, the "Fix with AI" prompt).
 7. **Make it pass for the right reason.** A failure is either a test bug (locator, timing, data) → fix the test; or an application bug → do not change the expected result; follow `pwauto-heal` to record it.
-8. **Prove stability**: `npm run test:flaky-check -- --grep "<tag>"` (5 repeats, parallel, no retries) must be green. Then `npm run check` (type check, lint, skills sync).
+8. **Prove stability**: `npm run test:flaky-check -- --project=<suite>-chromium --grep "<tag>"` (5 repeats, parallel, no retries) must be green. Then `npm run check` (type check, lint, skills sync).
 9. **Hand over**: list scenarios automated, new page objects and steps, run result, and anything recorded as an app bug. Offer Review B in `pwauto-review`.
 
 ## Never (the linter blocks most of these)

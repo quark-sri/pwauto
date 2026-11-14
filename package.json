@@ -28,7 +28,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "typecheck": "bddgen && tsc --noEmit",
-    "check": "npm run typecheck && npm run lint && node scripts/sync-agent-skills.mjs --check",
+    "check": "npm run typecheck && npm run lint && node scripts/guard-weakening.mjs && npm run test:unit && node scripts/lint-skills.mjs && node scripts/sync-agent-skills.mjs --check",
     "clean": "node -e \"for (const d of ['reports','test-results','.features-gen']) require('node:fs').rmSync(d,{recursive:true,force:true})\"",
     "test:app": "bddgen && playwright test --project='app-*'",
     "steps:list": "bddgen export",
@@ -37,7 +37,10 @@
     "env:set": "node scripts/env-set.mjs",
     "auth:save": "node --experimental-strip-types scripts/auth-save.ts",
     "agents:update": "playwright init-skills && node -e \"require('node:fs').rmSync('.claude/skills/playwright-component-testing',{recursive:true,force:true})\" && node scripts/sync-agent-skills.mjs",
-    "test:example": "node scripts/run-example.mjs"
+    "test:example": "node scripts/run-example.mjs",
+    "guard": "node scripts/guard-weakening.mjs",
+    "test:unit": "playwright test -c tests/unit",
+    "lint:skills": "node scripts/lint-skills.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
