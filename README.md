@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/pwauto-banner.svg" alt="pwauto: UI test automation with AI agents. Workflow: Explore the app, write BDD scenarios, you approve them, automate with Playwright, heal and report. Tests pass for the right reason, evidence on every run." width="100%">
+  <img src="docs/assets/pwauto-banner.svg" alt="pwauto: AI-agent-ready UI test automation for any web application. You give an AI agent a URL. It runs setup, explore, scenarios, review, automate, heal and report, and stops at each gate for your decision. Expected results come from a sourced knowledge base, scenarios are plain-English Gherkin, guardrails stop weakened tests, and each run keeps evidence." width="100%">
 </p>
 
 <h1 align="center">pwauto</h1>
