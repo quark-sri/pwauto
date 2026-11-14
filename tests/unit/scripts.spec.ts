@@ -9,6 +9,8 @@ import { findMedia } from '../../scripts/check-ci-evidence.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { findParked } from '../../scripts/list-parked.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
+import { parseRun, triggerVerdict } from '../../scripts/run-evals.mjs';
+// @ts-expect-error -- plain .mjs scripts without type declarations
 import { setValue } from '../../scripts/env-set.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { findWeakening } from '../../scripts/guard-weakening.mjs';
@@ -177,6 +179,33 @@ test.describe('Playwright image versions', () => {
       tags.filter((t) => !t.endsWith(`: ${installed}`)),
       `images must use v${installed}`,
     ).toEqual([]);
+  });
+});
+
+test.describe('eval runner', () => {
+  test('reads the skills an agent loaded and judges a trigger case', () => {
+    const jsonl = [
+      JSON.stringify({ type: 'assistant', message: { content: [{ type: 'text', text: 'I will heal it.' }] } }),
+      JSON.stringify({
+        type: 'assistant',
+        message: {
+          content: [
+            { type: 'tool_use', name: 'Skill', input: { skill: 'pwauto-heal' } },
+            { type: 'tool_use', name: 'Read', input: {} },
+          ],
+        },
+      }),
+      'not json',
+      JSON.stringify({ type: 'result', total_cost_usd: 0.1 }),
+    ].join('\n');
+    const run = parseRun(jsonl);
+    expect(run).toMatchObject({ skills: ['pwauto-heal'], tools: ['Read'], cost: 0.1 });
+    expect(triggerVerdict({ expect_skill: 'pwauto-heal' }, run).pass).toBe(true);
+    expect(triggerVerdict({ expect_skill: 'pwauto-report' }, run).pass).toBe(false);
+    expect(triggerVerdict({ expect_skill: 'pwauto-heal', not_skill: 'pwauto-heal' }, run).pass).toBe(false);
+    const init = JSON.stringify({ type: 'system', subtype: 'init', slash_commands: ['pwauto'] });
+    expect(triggerVerdict({ prompt: '/pwauto go', expect_skill: 'pwauto' }, parseRun(init)).pass).toBe(true);
+    expect(triggerVerdict({ prompt: '/pwauto go', expect_skill: 'pwauto' }, parseRun('')).pass).toBe(false);
   });
 });
 
