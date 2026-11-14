@@ -1,0 +1,41 @@
+name: Bug report
+description: Something in pwauto does not work
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include passwords, tokens or session files. Remove them from logs and screenshots.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. npm run setup\n2. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Paste the error message or the relevant output.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `npm run doctor`
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: AI agent
+      options: [Claude Code, OpenAI Codex, Other agent, No agent]
+    validations:
+      required: true

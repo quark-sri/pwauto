@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or help
+    url: https://github.com/quark-sri/pwauto/discussions
+    about: Ask how to use pwauto, or share what you built.
+  - name: Security problem
+    url: https://github.com/quark-sri/pwauto/security/advisories/new
+    about: Report a vulnerability privately. Do not open a public issue.

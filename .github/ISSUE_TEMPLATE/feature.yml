@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a change or a new capability
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What can you not do today? Who has this problem?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: The outcome you want
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried or considered

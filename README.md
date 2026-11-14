@@ -219,7 +219,7 @@ To report a bug or ask for a feature, [open an issue](https://github.com/quark-s
 
 Do not put secrets in commits, issues or logs. pwauto keeps credentials in `.env` and in saved sessions in `.auth/`. Git ignores both.
 
-If you find a security problem, do not open a public issue. Report it privately to the maintainers through [GitHub security advisories](https://github.com/quark-sri/pwauto/security/advisories/new).
+If you find a security problem, do not open a public issue. Follow the [security policy](SECURITY.md).
 
 ## Acknowledgements
 

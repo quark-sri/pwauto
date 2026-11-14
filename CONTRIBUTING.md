@@ -23,7 +23,9 @@ For a large change, open an issue first. Describe the change and wait for a main
 
 Do not include secrets, passwords or session files. Remove them from logs and screenshots before you attach them.
 
-To report a security problem, do not open a public issue. Follow the instructions in the [Security section of the README](README.md#security).
+To report a security problem, do not open a public issue. Follow the [security policy](SECURITY.md).
+
+All project spaces follow the [Code of Conduct](CODE_OF_CONDUCT.md). For questions, use [Discussions](https://github.com/quark-sri/pwauto/discussions).
 
 ## Set up your development environment
 

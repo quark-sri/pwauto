@@ -23,8 +23,15 @@ const sh = (cmd) => execSync(cmd, { stdio: 'inherit', shell: true });
 
 step(1, 'Checking Node.js');
 const [major, minor] = process.versions.node.split('.').map(Number);
-if (major < 20 || (major === 20 && minor < 19)) {
-  console.error(`Node.js ${process.versions.node} is too old. Install Node.js 22 or 24 LTS: https://nodejs.org`);
+// The minimum comes from package.json ("engines"), the same source the doctor uses.
+const [minMajor, minMinor] = JSON.parse(readFileSync('package.json', 'utf8'))
+  .engines.node.match(/(\d+)\.(\d+)/)
+  .slice(1)
+  .map(Number);
+if (major < minMajor || (major === minMajor && minor < minMinor)) {
+  console.error(
+    `Node.js ${process.versions.node} is too old (minimum ${minMajor}.${minMinor}). Install Node.js 22 or 24 LTS: https://nodejs.org`,
+  );
   process.exit(1);
 }
 console.log(`Node.js ${process.versions.node} on ${process.platform}/${process.arch}`);
