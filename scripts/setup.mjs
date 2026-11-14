@@ -50,7 +50,9 @@ if (!existsSync('.env')) {
 
 step(4, 'Installing Playwright browsers');
 const envText = readFileSync('.env', 'utf8');
-const configured = (envText.match(/^BROWSERS=(.*)$/m)?.[1] ?? 'chromium')
+// Like the test configuration: a real environment variable wins over .env.
+// The mobile mapping is repeated in .github/workflows/ui-tests.yml (test job): keep both equal.
+const configured = (process.env.BROWSERS || envText.match(/^BROWSERS=(.*)$/m)?.[1] || 'chromium')
   .split(',')
   .map((b) => b.trim())
   .map((b) => (b.startsWith('mobile-safari') ? 'webkit' : b.startsWith('mobile-chrome') ? 'chromium' : b))

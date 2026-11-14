@@ -146,6 +146,7 @@ jobs:
         run: npm ci
       - name: Install browsers
         if: steps.target.outputs.run == 'true'
+        # Same mobile mapping as scripts/setup.mjs: keep both equal.
         run: npx playwright install --with-deps $(echo "$BROWSERS" | tr ',' ' ' | sed 's/mobile-chrome/chromium/;s/mobile-safari/webkit/')
       - if: steps.target.outputs.run == 'true'
         run: cp .env.example .env && sed -i '/^BASE_URL=/d;/^INCLUDE_EXAMPLES=/d;/^BROWSERS=/d' .env
