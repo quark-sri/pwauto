@@ -29,7 +29,7 @@ Tests are only as good as their expected results. Before anyone writes a scenari
    - note how elements are identified: roles and names, labels, and the test-ID attribute in use.
    Never read `.env` and never type a real password into the CLI; use saved sessions. To test a wrong-password case, type an obviously fake password for an unknown user.
    Ask before any action that creates real-world effects (orders, payments, emails, deletions) unless the user said the environment is a test one.
-4. **Record the knowledge** in domainlore format (one page per concept; see `knowledge/` and the `lore-use` skill of the domainlore plugin, or `examples/toolshop/knowledge/` for a complete example):
+4. **Record the knowledge** in domainlore format (one page per concept; see `knowledge/`, the domainlore `lore-use` skill — plugin in Claude Code, `~/.agents/skills/lore-use` in Codex — or `examples/toolshop/knowledge/` for a complete example):
    - `lore.toml`: one `[areas.<area>]` per business area, with a one-line description.
    - Per area: `actors/`, `screens/`, `journeys/`, `entities/`, `rules/`, `terms/`.
    - Every page: `type`, `title`, `description`, `basis`, and `sources` with `id`, `resource` (URL or document), `title`; cite facts in the body with `[^id]` footnotes.

@@ -213,6 +213,27 @@ add(
   cliSkill ? 'installed' : 'missing',
   cliSkill ? '' : 'npm run agents:update',
 );
+// Codex and other Agent Skills hosts: the qestack and domainlore skills are not plugins there.
+// pwauto installs them in the user folder ~/.agents/skills (docs/01-getting-started.md, "Codex setup").
+if (codexV || aiMode) {
+  const skillDirs = [path.join(os.homedir(), '.agents', 'skills'), path.join(root, '.agents', 'skills')];
+  const hasSkill = (name) => skillDirs.some((d) => existsSync(path.join(d, name, 'SKILL.md')));
+  for (const [name, skill, repo] of [
+    ['qestack skills (Codex)', 'test-review-panel', 'qestack'],
+    ['domainlore skills (Codex)', 'lore-use', 'domainlore'],
+  ]) {
+    const found = hasSkill(skill);
+    add(
+      'AI agents',
+      name,
+      found ? 'ok' : 'info',
+      found ? `${skill} found` : 'not found (Claude Code users get them from the plugin)',
+      found
+        ? ''
+        : `For Codex: git clone https://github.com/quark-sri/${repo} ~/${repo} && ~/${repo}/scripts/install-skills.sh --agent codex --user${process.platform === 'win32' ? ' --copy' : ''}`,
+    );
+  }
+}
 const ghV = run('gh --version')?.split('\n')[0];
 add(
   'Optional',

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error -- plain .mjs scripts without type declarations
@@ -9,6 +10,8 @@ import { setValue } from '../../scripts/env-set.mjs';
 import { findWeakening } from '../../scripts/guard-weakening.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { checksFor, projectRelative } from '../../scripts/hooks/check-edit.mjs';
+// @ts-expect-error -- plain .mjs scripts without type declarations
+import { outOfSync, syncSkills } from '../../scripts/sync-agent-skills.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { isProtected } from '../../scripts/hooks/guard-protected.mjs';
 
@@ -84,6 +87,58 @@ test.describe('edit hook', () => {
     expect(isProtected('.claude/settings.json', root)).toBe(true);
     expect(isProtected('scripts/hooks/check-edit.mjs', root)).toBe(true);
     expect(isProtected('src/app/steps/a.steps.ts', root)).toBe(false);
+  });
+});
+
+test.describe('agent skills sync', () => {
+  const skill = (dir: string, name: string, body: string) => {
+    mkdirSync(path.join(dir, name), { recursive: true });
+    writeFileSync(path.join(dir, name, 'SKILL.md'), body);
+  };
+
+  test('copies the pwauto skills and keeps skills that other tools installed', () => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), 'pwauto-sync-'));
+    try {
+      const src = path.join(tmp, 'src');
+      const dst = path.join(tmp, 'dst');
+      skill(src, 'pwauto', 'v1');
+      skill(dst, 'test-review-panel', 'qestack');
+      skill(dst, 'lore-use', 'domainlore');
+
+      syncSkills(src, dst);
+      expect(readFileSync(path.join(dst, 'pwauto', 'SKILL.md'), 'utf8')).toBe('v1');
+      expect(readFileSync(path.join(dst, 'test-review-panel', 'SKILL.md'), 'utf8')).toBe('qestack');
+      expect(existsSync(path.join(dst, 'lore-use', 'SKILL.md'))).toBe(true);
+      expect(outOfSync(src, dst)).toEqual([]);
+
+      writeFileSync(path.join(src, 'pwauto', 'SKILL.md'), 'v2');
+      expect(outOfSync(src, dst)).toEqual(['pwauto']);
+      syncSkills(src, dst);
+      expect(readFileSync(path.join(dst, 'pwauto', 'SKILL.md'), 'utf8')).toBe('v2');
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test('removes a pwauto skill that was deleted from the source, and only that one', () => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), 'pwauto-sync-'));
+    try {
+      const src = path.join(tmp, 'src');
+      const dst = path.join(tmp, 'dst');
+      skill(src, 'pwauto', 'a');
+      skill(src, 'pwauto-old', 'b');
+      skill(dst, 'test-review-panel', 'qestack');
+      syncSkills(src, dst);
+
+      rmSync(path.join(src, 'pwauto-old'), { recursive: true });
+      expect(outOfSync(src, dst)).toEqual(['pwauto-old']);
+      syncSkills(src, dst);
+      expect(existsSync(path.join(dst, 'pwauto-old'))).toBe(false);
+      expect(existsSync(path.join(dst, 'test-review-panel'))).toBe(true);
+      expect(outOfSync(src, dst)).toEqual([]);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });
 

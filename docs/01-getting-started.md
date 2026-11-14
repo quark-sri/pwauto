@@ -126,6 +126,30 @@ claude
 
 The first time, Claude Code asks you to trust the project's plugins (`qestack`, `domainlore`). Accept them. What happens next is described in [AI workflow](02-ai-workflow.md).
 
+### Codex setup
+
+Codex has no plugins. It reads the pwauto skills from `.agents/skills/` in the project (`npm install` keeps them up to date). The review panel (qestack) and the knowledge base skills (domainlore) come from their own repositories. Install them once, in your **user folder** `~/.agents/skills/`, so they work in all your projects:
+
+```bash
+git clone https://github.com/quark-sri/qestack ~/qestack
+~/qestack/scripts/install-skills.sh --agent codex --user        # needs python3
+
+git clone https://github.com/quark-sri/domainlore ~/domainlore
+~/domainlore/scripts/install-skills.sh --agent codex --user
+```
+
+On Windows, run these commands in Git Bash and add `--copy`. To update later: `git -C ~/qestack pull` (and `~/domainlore`), then run the same install command again. The setup stage (`pwauto-setup`) offers to do this for you, and `npm run doctor -- --ai` shows if the skills are found.
+
+Do not install them with `--project .`: they are third-party skills and must not be committed with the pwauto skills. (If you did, `npm install` keeps them; only the pwauto folders are refreshed.)
+
+What does not work the same in Codex:
+
+| Feature | Claude Code | Codex |
+|---|---|---|
+| Edit check after each change (`bddgen`, ESLint) | automatic hook | the agent runs `npx bddgen` and `npx eslint <file>`, and `npm run check` before it finishes (`AGENTS.md`) |
+| Review panel | separate reviewer agents | one session, one reviewer after the other; the report says "not independent" |
+| Stage agents (`.claude/agents/`) | separate context per stage | the main agent follows the stage skill |
+
 ## 1.7 Keep or remove the example
 
 The example stays in the repository as a reference for people and agents (`examples/toolshop/README.md` explains what to copy). Once `BASE_URL` is set it no longer runs with `npm test`; use `npm run test:example`. If your team prefers a clean repository:

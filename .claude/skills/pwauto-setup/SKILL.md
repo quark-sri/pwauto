@@ -30,7 +30,16 @@ A tester clones the repository on any laptop and, without knowing Node.js or Pla
 5. **AI tooling.**
    - Browser for agents: Playwright's built-in CLI (`npx playwright cli`) with the skills `playwright-cli` and `playwright-trace` in `.claude/skills/` (copied to `.agents/skills/`). No MCP servers are needed. After a Playwright upgrade run `npm run agents:update` to refresh these skills.
    - Claude Code plugins: the project settings enable `qestack` and `domainlore`; if `/plugin` shows them missing, run `/plugin marketplace add quark-sri/qestack` and `/plugin marketplace add quark-sri/domainlore`, then `/plugin install qestack@qestack` and `/plugin install domainlore@domainlore`.
-   - Codex and other agents: skills are in `.agents/skills/` (kept in sync by `npm install`); instructions in `AGENTS.md`.
+   - Codex and other agents: the pwauto skills are in `.agents/skills/` (kept in sync by `npm install`); instructions in `AGENTS.md`. The qestack and domainlore skills are not plugins there: they go in the **user folder** `~/.agents/skills/`. The doctor reports them as `qestack skills (Codex)` and `domainlore skills (Codex)`. If one is missing, **ask first** (it clones a repository into the home folder), then run:
+
+     ```bash
+     git clone https://github.com/quark-sri/qestack ~/qestack
+     ~/qestack/scripts/install-skills.sh --agent codex --user
+     git clone https://github.com/quark-sri/domainlore ~/domainlore
+     ~/domainlore/scripts/install-skills.sh --agent codex --user
+     ```
+
+     If the folder already exists, run `git -C ~/<repo> pull` instead of the clone. The qestack script needs `python3`. On Windows run it in Git Bash and add `--copy`. Do not install them into the project `.agents/skills/` (they would be mixed with the pwauto skills) and never commit them. Tell the user what Codex cannot do: no hooks (run `npm run check` after each change), and the review panel runs in one session (its report says "not independent").
    - Required for the AI workflow: `uv` (runs `lore` to validate the knowledge base). Windows: `winget install astral-sh.uv`; macOS: `brew install uv`; Linux/macOS: `curl -LsSf https://astral.sh/uv/install.sh | sh`. Optional: `gh` (pull requests).
 6. **Write the QA project context** used by the qestack skills: create or update `.agents/qa-project-context.md` from its template (stack: TypeScript + Playwright + playwright-bdd; test commands; report folders; `Review reports: test-plan/reviews`). Keep existing human edits.
 7. **Verify.** Run `npm run doctor` (expect exit 0), then `npm run test:smoke`. Show the result. If a browser fails to launch on Linux, it is almost always missing OS libraries (step 3).
