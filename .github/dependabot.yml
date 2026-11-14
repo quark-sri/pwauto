@@ -1,0 +1,20 @@
+# Weekly dependency updates, grouped so that one pull request holds related packages.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    groups:
+      playwright:
+        patterns: ['@playwright/*', 'playwright*', '@axe-core/playwright', 'eslint-plugin-playwright']
+      reports:
+        patterns: ['allure*']
+      tooling:
+        patterns: ['eslint', 'typescript*', 'prettier', '@types/*']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      actions:
+        patterns: ['*']

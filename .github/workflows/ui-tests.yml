@@ -91,10 +91,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with: { node-version: 24, cache: npm }
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: cp .env.example .env
-        shell: bash
+      # The same command a new user runs: packages, .env, browsers, generated tests, doctor.
+      - run: npm run setup -- --with-deps
       - run: npm run test:framework
       - name: No images, videos or traces
         if: ${{ !cancelled() }}
@@ -148,6 +146,7 @@ jobs:
         run: npm ci
       - name: Install browsers
         if: steps.target.outputs.run == 'true'
+        # Same mobile mapping as scripts/setup.mjs: keep both equal.
         run: npx playwright install --with-deps $(echo "$BROWSERS" | tr ',' ' ' | sed 's/mobile-chrome/chromium/;s/mobile-safari/webkit/')
       - if: steps.target.outputs.run == 'true'
         run: cp .env.example .env && sed -i '/^BASE_URL=/d;/^INCLUDE_EXAMPLES=/d;/^BROWSERS=/d' .env
