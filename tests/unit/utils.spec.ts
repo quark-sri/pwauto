@@ -3,7 +3,8 @@ import type { Page } from '@playwright/test';
 import { definePages } from '../../src/core/pages/definePages';
 import { buildPerson, uniqueId } from '../../src/core/utils/data-factory';
 import { redact, redactText, requestPayload } from '../../src/core/utils/logger';
-import { getUser, roleKey } from '../../src/core/utils/users';
+import { getUser, hasUser, manualMarker, roleKey, sessionFile, usesSavedSession } from '../../src/core/utils/users';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 
 test.describe('users', () => {
   test('maps a role sentence to an environment prefix', () => {
@@ -35,6 +36,31 @@ test.describe('users', () => {
 
   test('a missing user names the variables to add', () => {
     expect(() => getUser('nobody here')).toThrow(/NOBODY_HERE_USERNAME and NOBODY_HERE_PASSWORD/);
+    expect(() => getUser('nobody here')).toThrow(/auth:save -- --role "nobody here" --manual/);
+  });
+
+  test('a saved session has one file per role, and a role is known by its username and password', () => {
+    expect(sessionFile('Store Admin')).toBe('.auth/store_admin.json');
+    expect(hasUser('nobody here')).toBe(false);
+    expect(hasUser('customer', { customer: { username: 'demo@example.com', password: 'demo' } })).toBe(true);
+  });
+
+  test('a saved session is used only for a role without username and password, saved by a person', () => {
+    const role = `unit saved ${process.pid}`;
+    const key = roleKey(role);
+    mkdirSync('.auth', { recursive: true });
+    writeFileSync(sessionFile(role), '{"cookies":[],"origins":[]}');
+    try {
+      expect(usesSavedSession(role)).toBe(false); // no marker: written by the form login, not by a person
+      writeFileSync(manualMarker(role), 'x');
+      expect(usesSavedSession(role)).toBe(true);
+      process.env[`${key}_USERNAME`] = 'someone@example.com'; // a username without a password
+      expect(usesSavedSession(role)).toBe(false);
+    } finally {
+      delete process.env[`${key}_USERNAME`];
+      rmSync(sessionFile(role), { force: true });
+      rmSync(manualMarker(role), { force: true });
+    }
   });
 });
 

@@ -43,6 +43,17 @@ test.describe('env:set', () => {
     expect(() => setValue('', 'A', 'x\ny')).toThrow(/one line/);
   });
 
+  test('auth:save --manual refuses to run without a terminal', () => {
+    const r = spawnSync('node', ['--experimental-strip-types', 'scripts/auth-save.ts', '--role', 'x', '--manual'], {
+      cwd: root,
+      input: '',
+      encoding: 'utf8',
+      env: { ...process.env, BASE_URL: 'https://app.example.com' },
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/needs a terminal/);
+  });
+
   test('refuses retries and timeouts without --confirm', () => {
     const r = spawnSync('node', ['scripts/env-set.mjs', 'RETRIES=3'], { cwd: root, encoding: 'utf8' });
     expect(r.status).toBe(1);
@@ -143,6 +154,29 @@ test.describe('agent skills sync', () => {
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
+  });
+});
+
+test.describe('Playwright image versions', () => {
+  test('the docker images in docs/ci and .devcontainer match the installed @playwright/test', () => {
+    const installed = JSON.parse(readFileSync(path.join(root, 'node_modules/@playwright/test/package.json'), 'utf8'))
+      .version as string;
+    const files = [
+      'docs/ci/gitlab-ci.yml',
+      'docs/ci/azure-pipelines.yml',
+      'docs/ci/Jenkinsfile',
+      '.devcontainer/devcontainer.json',
+    ];
+    const tags = files.flatMap((f) =>
+      [...readFileSync(path.join(root, f), 'utf8').matchAll(/mcr\.microsoft\.com\/playwright:v([\d.]+)/g)].map(
+        (m) => `${f}: ${m[1]}`,
+      ),
+    );
+    expect(tags.length, 'image tags found').toBeGreaterThan(0);
+    expect(
+      tags.filter((t) => !t.endsWith(`: ${installed}`)),
+      `images must use v${installed}`,
+    ).toEqual([]);
   });
 });
 

@@ -25,3 +25,10 @@ Feature: Generic login
     And I click the "Sign in" button
     Then I should see an alert "Invalid email or password"
     And the page URL should contain "/login"
+
+  # Single sign-on and MFA: the role has no password; a person saved the session once.
+  Scenario: A role without a password uses its saved session
+    Given a person saved a browser session for a new role
+    And I am logged in with that saved session
+    When I open the "/account" page
+    Then I should see the "My account" heading

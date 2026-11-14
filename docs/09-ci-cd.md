@@ -52,12 +52,16 @@ npx bddgen
 npx playwright test --shard=1/2                   # one line per shard/agent
 ```
 
-| CI | Notes |
-|---|---|
-| GitLab CI | image `mcr.microsoft.com/playwright:v1.65.0-noble`; text-only artifacts: `artifacts: paths: [reports/]` (not `test-results/`); `junit: reports/junit.xml` |
-| Azure DevOps | `PublishTestResults@2` with `reports/junit.xml`; `PublishPipelineArtifact@1` for `reports/` |
-| Jenkins | `junit 'reports/junit.xml'`; Allure plugin with `reports/allure-results` |
-| Bitbucket | `image: mcr.microsoft.com/playwright:v1.65.0-noble`; artifacts `reports/**` |
+Ready-to-copy pipeline files (**not run by this project's CI**: check them in your system before you rely on them):
+
+| CI | File | Copy to |
+|---|---|---|
+| GitLab CI | [`docs/ci/gitlab-ci.yml`](ci/gitlab-ci.yml) | `.gitlab-ci.yml` |
+| Azure DevOps | [`docs/ci/azure-pipelines.yml`](ci/azure-pipelines.yml) | `azure-pipelines.yml` |
+| Jenkins | [`docs/ci/Jenkinsfile`](ci/Jenkinsfile) | `Jenkinsfile` |
+| Bitbucket | — | image `mcr.microsoft.com/playwright:v1.65.0-noble`; the five commands above; artifacts `reports/**` |
+
+Each file runs `npm run check`, then your UI tests only when `BASE_URL` is set (`@smoke` for pull or merge requests, everything otherwise), then the evidence check, and publishes JUnit results and the text reports. The header of each file says what it leaves out. `npm run check` fails when the Playwright image version in these files or in `.devcontainer/` differs from `@playwright/test`.
 
 Use the official Playwright Docker image whose version equals `@playwright/test` in `package.json`.
 

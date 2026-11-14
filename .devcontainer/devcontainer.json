@@ -1,0 +1,19 @@
+{
+  // The same environment on every machine and in GitHub Codespaces:
+  // Node.js and the Playwright browsers with their system libraries.
+  // Keep the image version equal to @playwright/test in package.json.
+  "name": "pwauto",
+  "image": "mcr.microsoft.com/playwright:v1.65.0-noble",
+  "postCreateCommand": "npm run setup",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-playwright.playwright",
+        "alexkrechik.cucumberautocomplete",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "editorconfig.editorconfig"
+      ]
+    }
+  }
+}

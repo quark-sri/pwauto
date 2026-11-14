@@ -1,4 +1,6 @@
 # Weekly dependency updates, grouped so that one pull request holds related packages.
+# A Playwright update must also change the image tags in docs/ci/ and .devcontainer/
+# (npm run check fails until they match).
 version: 2
 updates:
   - package-ecosystem: npm

@@ -1,0 +1,56 @@
+# pwauto pipeline for Azure DevOps. Copy to azure-pipelines.yml in your repository root.
+# NOT run by the pwauto project's own CI: check it in your Azure DevOps before you rely on it.
+#
+# Pipeline variables (secret): BASE_URL, and per role <ROLE>_USERNAME / <ROLE>_PASSWORD.
+# Map each secret into the env block of the test step (Azure does not expose secrets by default).
+# Evidence policy: text results only (CI=true below keeps screenshots, videos and traces off).
+# Same as the GitHub workflow: pull requests run @smoke, other builds run everything,
+# UI tests run only when BASE_URL is set. Left out: sharding (add a matrix if you need it).
+
+trigger: [main]
+pr: [main]
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  CI: 'true'
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
+steps:
+  - task: NodeTool@0
+    inputs: { versionSpec: '24.x' }
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      path: $(npm_config_cache)
+  - script: npm ci && cp .env.example .env
+    displayName: Install
+  - script: npm run check
+    displayName: Check (types, lint, guards, unit tests)
+  - script: |
+      npx playwright install --with-deps chromium && npx bddgen
+      if [ "$(Build.Reason)" = "PullRequest" ]; then
+        npx playwright test --grep @smoke
+      else
+        npx playwright test
+      fi
+    displayName: UI tests
+    condition: and(succeeded(), ne(variables['BASE_URL'], ''))
+    env:
+      BASE_URL: $(BASE_URL)
+      CUSTOMER_USERNAME: $(CUSTOMER_USERNAME)
+      CUSTOMER_PASSWORD: $(CUSTOMER_PASSWORD)
+  - script: node scripts/check-ci-evidence.mjs
+    displayName: No images, videos or traces
+    condition: succeededOrFailed()
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: reports/junit.xml
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: reports
+      artifact: reports
