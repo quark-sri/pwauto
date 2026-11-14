@@ -3,6 +3,12 @@
 ## Unreleased
 
 ### Changed
+- **Node.js 22.18 or newer is required** (was 20.19): the explore and login-session scripts need it. The doctor reads the minimum from `package.json`.
+- With `CI` set, screenshots, videos, traces and step screenshots are always off, whatever `.env` or the pipeline says.
+- `TEST_ENV` also selects `.env.<TEST_ENV>` when it is set in `.env`. `WORKERS` must be a number or a percentage.
+- "I should not see {string}" passes when the text is in the page but hidden (it failed before).
+- `npm run example:remove` no longer edits `playwright.config.ts`; an example suite now has a default export (`export default defineSuite({...})`).
+- CI passes one `--grep` only (the manual filter wins over `@smoke`).
 - The Toolshop example stays in the repository as a reference. It runs with `npm test` only while `BASE_URL` is empty; otherwise run it with `npm run test:example`.
 - CI produces and uploads no screenshots, videos or traces (text results only). The UI test job runs only when the `BASE_URL` secret is set (or manually with `run_example`); otherwise it is skipped with a notice, so a green CI can mean that no UI test ran.
 - Request and response bodies of failed calls in `network-errors.json` are masked (`redactText`) and are off by default on CI (`CAPTURE_NETWORK_BODIES`).
@@ -14,7 +20,11 @@
 - `npm install` (skills sync) refreshes only the pwauto skill folders in `.agents/skills/` and keeps skills that other tools installed there; `npm run check` checks only the pwauto folders. A skill removed from `.claude/skills/` is still removed from the copy (`.agents/skills/.pwauto-skills`).
 
 ### Added
-- `npm run check` now also runs the weakening guard (`scripts/guard-weakening.mjs`), the framework unit tests (`tests/unit`, offline, 38 tests) and the agent-layer lint (`scripts/lint-skills.mjs`).
+- Framework browser tests: 16 scenarios run the generic steps and the login fixture against a fixture site that the repository serves itself (`tests/fixture-app`, `npm run test:framework`). CI runs them on every pull request, with no internet and no secrets.
+- CI runs `npm run check` and the doctor on Ubuntu, Windows and macOS with Node.js 22 and 24.
+- `defineSuite()` (`src/core/config/suite.ts`). The configuration finds each `examples/<name>/suite.ts` by itself; `npm run auth:save -- --suite <name>` works for each example.
+- `scripts/check-ci-evidence.mjs`: CI fails if a run leaves an image, video or trace file. The shard count is the repository variable `SHARDS`.
+- `npm run check` now also runs the weakening guard (`scripts/guard-weakening.mjs`), the framework unit tests (`tests/unit`, offline) and the agent-layer lint (`scripts/lint-skills.mjs`).
 - Optional PreToolUse hook `scripts/hooks/guard-protected.mjs` that asks before agents edit guardrail files (not enabled by default).
 - Agent evaluation cases (`evals/skills.jsonl`, not yet run) and a release checklist (`docs/13-release-checklist.md`).
 - Codex setup for the qestack and domainlore skills (user folder `~/.agents/skills/`): guide in `docs/01-getting-started.md#codex-setup`, offered by `pwauto-setup`, reported by `npm run doctor -- --ai`; "Without hooks" rules in `AGENTS.md`; Codex path for the review panel (one session, "not independent") in `pwauto-review`. Not yet verified in a real Codex session.

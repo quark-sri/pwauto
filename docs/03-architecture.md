@@ -69,7 +69,11 @@ sequenceDiagram
 | `app` | `features/**` | `src/steps/common`, `src/app` | `BASE_URL` | `BASE_URL` set |
 | `toolshop` | `examples/toolshop/features` | `src/steps/common`, `examples/toolshop/steps` | its own | no `BASE_URL` yet, `INCLUDE_EXAMPLES=true`, or `npm run test:example` |
 
-A second application in the same repository is a new suite (copy `examples/toolshop/suite.ts`). The example suite also serves as the regression test of the core.
+| `fixture` | `tests/fixture-app/features` | `src/steps/common` | fixture site on localhost | only `npm run test:framework` (and CI) |
+
+A suite is declared with `defineSuite()` (`src/core/config/suite.ts`), which adds the generic engine to the suite's own steps. The configuration finds each `examples/<name>/suite.ts` by itself, so a second application in the same repository is a new folder with a `suite.ts` (copy `examples/toolshop/suite.ts`), and removing an example is a folder delete.
+
+The `fixture` suite is the regression test of the core: 16 scenarios run the generic steps and the login fixture against a small site that this repository serves itself (`tests/fixture-app/server.mjs`), with no internet. The example suite shows the patterns for a real application.
 
 ## 3.5 Fixtures (dependency injection)
 

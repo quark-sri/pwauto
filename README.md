@@ -167,6 +167,7 @@ For more information, read [Writing BDD scenarios](docs/05-writing-bdd-scenarios
 | `npm test` | Runs all tests. |
 | `npm run test:smoke` | Runs the `@smoke` tests. |
 | `npm run test:example` | Runs the reference example. |
+| `npm run test:framework` | Runs the framework's own browser tests against a built-in test site (no internet needed). |
 | `npm run steps:list` | Lists the generic steps. |
 | `npm run report` | Opens the HTML report. |
 | `npm run check` | Runs type checks, lint, the weakening guard, unit tests and skill checks. |

@@ -6,7 +6,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22.18"
   },
   "scripts": {
     "doctor": "node scripts/doctor.mjs",
@@ -38,6 +38,7 @@
     "auth:save": "node --experimental-strip-types scripts/auth-save.ts",
     "agents:update": "playwright init-skills && node -e \"require('node:fs').rmSync('.claude/skills/playwright-component-testing',{recursive:true,force:true})\" && node scripts/sync-agent-skills.mjs",
     "test:example": "node scripts/run-example.mjs",
+    "test:framework": "node scripts/run-framework-tests.mjs",
     "guard": "node scripts/guard-weakening.mjs",
     "test:unit": "playwright test -c tests/unit",
     "lint:skills": "node scripts/lint-skills.mjs"

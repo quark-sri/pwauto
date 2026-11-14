@@ -6,18 +6,23 @@
 
 | Trigger | What runs |
 |---|---|
-| Pull request | quality job (types, lint, Gherkin, skills sync) + `@smoke` on 2 shards |
-| Push to `main` | quality + all scenarios |
-| Nightly (Mon–Fri 02:00 UTC) | quality + full regression |
+| Pull request | quality + framework browser tests + `@smoke` of your application on 2 shards |
+| Push to `main` | quality + framework browser tests + all scenarios |
+| Nightly (Mon–Fri 02:00 UTC) | quality + framework browser tests + full regression |
 | Manual (*Run workflow*) | choose a tag filter and browsers; optionally also run the reference example |
 
-Jobs: **quality** → **test** (matrix of 2 shards) → **report** (merges Allure results, uploads the Allure report).
+| Job | What it does |
+|---|---|
+| **quality** | `npm run check` (types, lint, weakening guard, framework unit tests, skills checks) and the doctor, on Ubuntu, Windows and macOS with Node.js 22 and 24 |
+| **framework** | `npm run test:framework`: the generic steps and the core fixtures in a real browser against the **fixture site** of this repository (`tests/fixture-app`). No internet, no secrets, so it runs on every pull request |
+| **test** | your scenarios (matrix of shards). Runs only when the `BASE_URL` secret is set (or a manual run asks for the example); otherwise it is skipped with a notice |
+| **report** | merges the Allure results and uploads the Allure report |
 
-The **test** job runs only when the `BASE_URL` secret is set (or a manual run asks for the example). Otherwise it is skipped with a notice, so a fresh fork is green and never depends on the public demo site.
+A fresh fork is green and never depends on the public demo site: the browser tests that always run use the fixture site. CI never runs the reference example on its own (the public site blocks CI runners and can be down).
 
 ### Evidence policy: text only in CI
 
-CI sets `SCREENSHOT=off`, `VIDEO=off`, `TRACE=off` and uploads only text results: the HTML report, `results.json`, `junit.xml`, Cucumber HTML/JSON and Allure results. **Screenshots, videos and traces are produced only in local runs.** To investigate a CI failure, rerun the scenario locally (`npx playwright test --grep "<name>"`) and open `npm run report`.
+When the `CI` variable is set, the configuration forces `SCREENSHOT=off`, `VIDEO=off`, `TRACE=off` and `STEP_SCREENSHOTS=false`, whatever `.env` or the pipeline says, and `node scripts/check-ci-evidence.mjs` fails the job if an image, video or trace file exists. CI uploads only text results: the HTML report, `results.json`, `junit.xml`, Cucumber HTML/JSON and Allure results. **Screenshots, videos and traces are produced only in local runs.** To investigate a CI failure, rerun the scenario locally (`npx playwright test --grep "<name>"`) and open `npm run report`.
 
 ### Secrets and variables
 
@@ -28,11 +33,11 @@ CI sets `SCREENSHOT=off`, `VIDEO=off`, `TRACE=off` and uploads only text results
 | `BASE_URL` | `https://qa.my-app.example.com` |
 | `CUSTOMER_USERNAME`, `CUSTOMER_PASSWORD` | one pair per role used in scenarios (add them to the workflow `env` block too) |
 
-Without `BASE_URL` only the quality job runs (it still generates and type-checks every scenario, including the example).
+Without `BASE_URL` the quality and framework jobs run (the quality job still generates and type-checks every scenario, including the example).
 
 ### More shards or browsers
 
-- Shards: change `matrix.shard: [1, 2]` and `--shard=${{ matrix.shard }}/2` together.
+- Shards: set the repository variable `SHARDS` to the list of shard numbers, for example `[1, 2, 3, 4]` (default `[1, 2]`).
 - Browsers: the manual trigger input, or set `BROWSERS` in the workflow `env`.
 
 ## 9.2 Other CI systems
@@ -49,12 +54,14 @@ npx playwright test --shard=1/2                   # one line per shard/agent
 
 | CI | Notes |
 |---|---|
-| GitLab CI | image `mcr.microsoft.com/playwright:v1.65.0-noble`; `artifacts: paths: [reports/, test-results/]`; `junit: reports/junit.xml` |
+| GitLab CI | image `mcr.microsoft.com/playwright:v1.65.0-noble`; text-only artifacts: `artifacts: paths: [reports/]` (not `test-results/`); `junit: reports/junit.xml` |
 | Azure DevOps | `PublishTestResults@2` with `reports/junit.xml`; `PublishPipelineArtifact@1` for `reports/` |
 | Jenkins | `junit 'reports/junit.xml'`; Allure plugin with `reports/allure-results` |
 | Bitbucket | `image: mcr.microsoft.com/playwright:v1.65.0-noble`; artifacts `reports/**` |
 
 Use the official Playwright Docker image whose version equals `@playwright/test` in `package.json`.
+
+The evidence policy is the same on every CI system. Most set `CI=true` themselves; if yours does not, set it. Then `SCREENSHOT`, `VIDEO` and `TRACE` stay off and `reports/` holds text results only. Add `node scripts/check-ci-evidence.mjs` after the tests to prove it.
 
 ## 9.3 Good pipeline practice
 

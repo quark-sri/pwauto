@@ -8,7 +8,7 @@ This guide takes you from nothing to a first test report. No programming knowled
 |---|---|---|
 | Computer | Windows 10/11, macOS 13+, Ubuntu 22.04+ (or similar Linux), WSL2 | 8 GB RAM or more |
 | Disk | 3 GB free (browsers, videos, traces) | |
-| Node.js | 20.19 | 22 or 24 LTS |
+| Node.js | 22.18 | 22 or 24 LTS (latest) |
 | Git | any recent | |
 | AI agent (optional) | [Claude Code](https://claude.com/claude-code) or [OpenAI Codex CLI](https://github.com/openai/codex) | |
 
@@ -19,7 +19,7 @@ You do **not** need Java, Python or admin rights for the framework itself. With 
 Open a terminal (Windows: *Terminal* or *PowerShell*; macOS: *Terminal*; Linux: your terminal) and check:
 
 ```bash
-node --version     # should print v22.x or v24.x (at least v20.19)
+node --version     # should print v22.x or v24.x (at least v22.18)
 git --version
 ```
 

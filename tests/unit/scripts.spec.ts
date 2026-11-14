@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error -- plain .mjs scripts without type declarations
+import { findMedia } from '../../scripts/check-ci-evidence.mjs';
+// @ts-expect-error -- plain .mjs scripts without type declarations
 import { setValue } from '../../scripts/env-set.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { findWeakening } from '../../scripts/guard-weakening.mjs';
@@ -142,6 +144,22 @@ test.describe('agent skills sync', () => {
   });
 });
 
+test.describe('CI evidence check', () => {
+  test('finds images, videos and traces, and accepts text results', () => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), 'pwauto-evidence-'));
+    try {
+      mkdirSync(path.join(tmp, 'reports', 'html', 'data'), { recursive: true });
+      writeFileSync(path.join(tmp, 'reports', 'junit.xml'), '<testsuites/>');
+      expect(findMedia([path.join(tmp, 'reports'), path.join(tmp, 'missing')])).toEqual([]);
+      writeFileSync(path.join(tmp, 'reports', 'html', 'data', 'shot.png'), '');
+      writeFileSync(path.join(tmp, 'reports', 'trace.zip'), '');
+      expect(findMedia([path.join(tmp, 'reports')])).toHaveLength(2);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});
+
 test.describe('weakening guard', () => {
   const diff = (file: string, lines: string[]) => `--- a/${file}\n+++ b/${file}\n${lines.join('\n')}\n`;
 
@@ -181,7 +199,7 @@ test.describe('suite selection in playwright.config.ts', () => {
   // A clean environment: the unit runner's own Playwright variables must not leak in.
   const cleanEnv = Object.fromEntries(
     Object.entries(process.env).filter(
-      ([k]) => !/^(PW_|PLAYWRIGHT_|TEST_WORKER_INDEX|TEST_PARALLEL_INDEX|FORCE_COLOR)/.test(k),
+      ([k]) => !/^(PW_|PLAYWRIGHT_|TEST_WORKER_INDEX|TEST_PARALLEL_INDEX|FORCE_COLOR|FRAMEWORK_SMOKE)/.test(k),
     ),
   );
 
@@ -198,7 +216,7 @@ test.describe('suite selection in playwright.config.ts', () => {
   test.beforeAll(() => {
     execFileSync('npx', ['bddgen', '-c', 'playwright.config.ts'], {
       cwd: root,
-      env: { ...cleanEnv, INCLUDE_EXAMPLES: 'true', BASE_URL: 'https://app.example.com' },
+      env: { ...cleanEnv, INCLUDE_EXAMPLES: 'true', FRAMEWORK_SMOKE: 'true', BASE_URL: 'https://app.example.com' },
       shell: process.platform === 'win32',
     });
   });
@@ -209,6 +227,12 @@ test.describe('suite selection in playwright.config.ts', () => {
 
   test('with BASE_URL only your app runs', () => {
     expect(projects({ BASE_URL: 'https://app.example.com', INCLUDE_EXAMPLES: 'false' })).toEqual(['app-chromium']);
+  });
+
+  test('the framework tests run only when asked for', () => {
+    expect(
+      projects({ BASE_URL: 'https://app.example.com', INCLUDE_EXAMPLES: 'false', FRAMEWORK_SMOKE: 'true' }),
+    ).toEqual(['app-chromium', 'fixture-chromium']);
   });
 
   test('INCLUDE_EXAMPLES adds the example to your app', () => {
