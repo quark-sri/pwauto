@@ -48,10 +48,12 @@ const runExamples = env.INCLUDE_EXAMPLES || !env.BASE_URL;
 const fixtureFile = 'tests/fixture-app/suite.ts';
 const runFixture = env.FRAMEWORK_SMOKE && existsSync(fixtureFile);
 
+const fixtureSuite = runFixture ? await loadSuite(fixtureFile) : undefined;
+
 const suites: Suite[] = [
   ...(env.BASE_URL ? [appSuite] : []),
   ...(runExamples ? await Promise.all(exampleFiles.map(loadSuite)) : []),
-  ...(runFixture ? [await loadSuite(fixtureFile)] : []),
+  ...(fixtureSuite ? [fixtureSuite] : []),
 ];
 
 if (suites.length === 0) {
@@ -138,11 +140,11 @@ export default defineConfig<Partial<CoreOptions>>({
   projects,
 
   // The fixture site of the framework tests runs on this machine; no internet needed.
-  ...(runFixture
+  ...(fixtureSuite
     ? {
         webServer: {
           command: 'node tests/fixture-app/server.mjs',
-          url: 'http://127.0.0.1:4173/health',
+          url: `${fixtureSuite.use?.baseURL}/health`,
           reuseExistingServer: !isCI,
           timeout: 30_000,
         },

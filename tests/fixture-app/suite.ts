@@ -7,6 +7,7 @@
  */
 import { defineSuite } from '../../src/core/config/suite.ts';
 
+// The port is the default of server.mjs (FIXTURE_PORT). playwright.config.ts reads this URL.
 export const FIXTURE_URL = 'http://127.0.0.1:4173';
 
 export default defineSuite({

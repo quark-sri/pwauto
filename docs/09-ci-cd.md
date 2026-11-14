@@ -13,8 +13,8 @@
 
 | Job | What it does |
 |---|---|
-| **quality** | `npm run check` (types, lint, weakening guard, framework unit tests, skills checks) and the doctor, on Ubuntu, Windows and macOS with Node.js 22 and 24 |
-| **framework** | `npm run test:framework`: the generic steps and the core fixtures in a real browser against the **fixture site** of this repository (`tests/fixture-app`). No internet, no secrets, so it runs on every pull request |
+| **quality** | `npm run check` (types, lint, weakening guard, framework unit tests, skills checks) and the doctor, on Ubuntu, Windows and macOS with Node.js 22.18 (the minimum) and 24 |
+| **framework** | `npm run test:framework`: the generic steps and the core fixtures in a real browser against the **fixture site** of this repository (`tests/fixture-app`). Runs on Ubuntu and Windows. No internet, no secrets, so it runs on every pull request |
 | **test** | your scenarios (matrix of shards). Runs only when the `BASE_URL` secret is set (or a manual run asks for the example); otherwise it is skipped with a notice |
 | **report** | merges the Allure results and uploads the Allure report |
 

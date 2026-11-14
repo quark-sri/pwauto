@@ -1,9 +1,10 @@
 # UI tests in CI.
 #
 # - quality:   type check, lint, guards, framework unit tests — on every push and PR,
-#              on Linux, Windows and macOS with each supported Node.js version.
+#              on Linux, Windows and macOS with the minimum and the current Node.js version.
 # - framework: the framework's own browser tests against the fixture site of this
-#              repository (tests/fixture-app). No internet, no secrets: every push and PR.
+#              repository (tests/fixture-app), on Linux and Windows. No internet, no secrets:
+#              every push and PR.
 # - test:      runs your scenarios when the BASE_URL secret is set (PR: @smoke; main
 #              and nightly: everything). Without BASE_URL it is skipped with a notice.
 #              Manual runs can also run the reference example (public demo site).
@@ -56,7 +57,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node: [22, 24]
+        # The minimum supported version (package.json "engines") and the current LTS.
+        node: ['22.18', '24']
     env:
       # The weakening guard compares the change with its base (PR base or previous push).
       GUARD_BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD' }}
@@ -75,11 +77,16 @@ jobs:
         shell: bash
 
   framework:
-    name: Framework browser tests (fixture site)
-    runs-on: ubuntu-latest
+    name: Framework browser tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     env:
       CI: true
+      BROWSERS: chromium
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -87,6 +94,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: cp .env.example .env
+        shell: bash
       - run: npm run test:framework
       - name: No images, videos or traces
         if: ${{ !cancelled() }}
@@ -95,7 +103,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: framework-results
+          name: framework-results-${{ matrix.os }}
           path: |
             reports/junit.xml
             reports/results.json
