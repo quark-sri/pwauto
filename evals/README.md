@@ -12,17 +12,19 @@
 ## Run the cases
 
 ```bash
-npm run evals                     # all cases with Claude Code, model sonnet
-npm run evals -- --limit 5        # a quick sample
-npm run evals -- --ids 8,18       # only these cases (line numbers of skills.jsonl)
-npm run evals -- --record         # also add the result to results.md
+npm run evals                       # all cases once, Claude Code, model sonnet
+npm run evals -- --repeat 3         # each case 3 times: use this before a release
+npm run evals -- --ids trig-heal-1  # only these cases (the "id" field)
+npm run evals -- --repeat 3 --record   # full run, added to results.md
 ```
 
-The runner (`scripts/run-evals.mjs`) needs the `claude` CLI and costs model usage (about USD 4 for all cases). Each case runs in a throw-away git worktree of the current commit, with no tools that change files or reach the network: the agent can only read the project, load skills and answer.
+The runner (`scripts/run-evals.mjs`) needs the `claude` CLI and costs model usage (about USD 4 per repeat of all cases).
 
-- **trigger** passes when the agent loads `expect_skill` and never `not_skill` within 2 turns. A typed command (`/pwauto ...`) passes when the session offers that command.
-- **behaviour** gets 10 turns; a second Claude call (model sonnet) judges the answer against `must` and `must_not`.
+- **What it tests:** the committed project (`HEAD`), not your uncommitted changes, in a throw-away git worktree. The agent may only use Read, Glob, Grep and Skill: no shell, no edits, no network, no MCP servers, no user-level settings or plugins.
+- **trigger** passes when the agent loads `expect_skill` (and never `not_skill`) within 2 turns. The 2-turn limit is a runner choice: it checks that the agent picks the skill first. A typed command (`/pwauto ...`) only checks that the session offers that command.
+- **behaviour** gets 10 turns; a second Claude call (sonnet) judges the answer against `must` and `must_not`. An unreadable verdict is ERROR (retried once), not FAIL.
+- **needs:** cases that need what the sandbox blocks (sub-agents, file writes) are SKIPPED and checked in the manual agent session of the release checklist.
+- **split: holdout:** paraphrases that are never used to tune skills or `AGENTS.md`. Their pass rate is reported apart: it is the honest measure of routing on new wording. The other cases prove "no regression on known prompts".
+- **repeats:** a case is PASS when all repeats pass, FLAKY when some pass, FAIL when none pass. Only FAIL makes the command exit with 1.
 
-Raw transcripts: `reports/evals/<time>/` (not committed). Results per run: [`results.md`](results.md). Run the cases before each release and after a change to a skill description or to `AGENTS.md`.
-
-Limits: results come from one machine, so skills installed for the user (outside this project) are also visible to the agent; a model can answer differently on another run. Codex is not covered by the runner yet.
+Raw transcripts: `reports/evals/<time>/` (not committed). Results per run: [`results.md`](results.md). Run the cases before each release and after a change to a skill description or to `AGENTS.md`. `--record` accepts full runs only. Codex is not covered by the runner yet.

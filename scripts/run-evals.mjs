@@ -2,21 +2,30 @@
 /**
  * Run the agent evaluation cases (evals/skills.jsonl) with headless Claude Code.
  *
- *   npm run evals                       all cases, model sonnet
+ *   npm run evals                       all cases, once, model sonnet
+ *   npm run evals -- --repeat 3         each case 3 times (use this for a release)
  *   npm run evals -- --kind trigger     only one kind (trigger | behaviour)
+ *   npm run evals -- --ids trig-heal-1  only these case ids (comma-separated)
  *   npm run evals -- --limit 5          the first 5 cases (a quick sample)
- *   npm run evals -- --ids 8,18         only these case numbers (line numbers in the file)
  *   npm run evals -- --model opus       another model
- *   npm run evals -- --record           also add the result to evals/results.md
+ *   npm run evals -- --record           add the result to evals/results.md (full runs only)
  *
- * Safety: the cases run in a throw-away git worktree of HEAD, and the agent gets no
- * tools that change files or reach the network (Bash, Edit, Write, WebFetch, ...).
- * It can only read the project, load skills and answer.
+ * What it tests: the committed project (HEAD), in a throw-away git worktree. The agent
+ * may only use Read, Glob, Grep and Skill (no shell, no edits, no network, no MCP
+ * servers, no user-level settings or plugins). It can only read the project, load
+ * skills and answer.
  *
- * trigger    passes when the agent loads `expect_skill` (and never `not_skill`).
- * behaviour  a second, short Claude call judges the answer against `must` / `must_not`.
+ * trigger    passes when the agent loads `expect_skill` (never `not_skill`) within 2 turns.
+ *            A typed command ("/pwauto ...") passes when the session offers that command:
+ *            this is a configuration check, not a routing check.
+ * behaviour  10 turns; a second, short Claude call judges the answer against `must` /
+ *            `must_not`. An unreadable verdict is an ERROR (retried once), not a FAIL.
+ * needs      cases that need what the sandbox blocks (sub-agents, file writes) are
+ *            SKIPPED and checked in the manual agent session of the release checklist.
+ * split      "holdout" cases are never used to tune skills or AGENTS.md; their pass rate
+ *            is reported apart, as the honest measure of routing on new wording.
  *
- * Costs model usage (about USD 0.05-0.20 per case). Raw output: reports/evals/<time>/.
+ * Costs model usage (about USD 0.05-0.20 per case and repeat). Raw output: reports/evals/<time>/.
  */
 import { execFileSync, spawn } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -24,11 +33,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const BLOCKED_TOOLS = 'Bash Edit Write MultiEdit NotebookEdit WebFetch WebSearch Agent';
+const TOOLS = ['Read', 'Glob', 'Grep', 'Skill'];
+const TIMEOUT_MS = 5 * 60_000;
 
-/** Summarise a stream-json transcript: skills loaded, other tools used, answer text, cost. */
+/** Summarise a stream-json transcript: skills loaded, other tools used, answer text, cost, model. */
 export function parseRun(jsonl) {
-  const run = { skills: [], tools: [], commands: [], text: '', cost: 0, error: null };
+  const run = { skills: [], tools: [], commands: [], text: '', cost: 0, model: '', error: null };
   for (const line of jsonl.split('\n')) {
     let e;
     try {
@@ -36,7 +46,10 @@ export function parseRun(jsonl) {
     } catch {
       continue;
     }
-    if (e.type === 'system' && e.subtype === 'init') run.commands = e.slash_commands ?? [];
+    if (e.type === 'system' && e.subtype === 'init') {
+      run.commands = e.slash_commands ?? [];
+      run.model = e.model ?? '';
+    }
     if (e.type === 'assistant') {
       for (const c of e.message?.content ?? []) {
         if (c.type === 'tool_use' && c.name === 'Skill')
@@ -53,34 +66,50 @@ export function parseRun(jsonl) {
   return run;
 }
 
-/** Verdict of a trigger case. */
+/** Verdict of a trigger case: { status: 'pass' | 'fail', reason }. */
 export function triggerVerdict(testCase, run) {
-  // A typed slash command ("/pwauto ...") puts the skill into the prompt itself, with no
-  // Skill tool call. The case then checks that the session offers that command.
   const typed = testCase.prompt?.match(/^\/([\w:-]+)/)?.[1];
   if (typed && typed === testCase.expect_skill)
     return run.commands.includes(typed)
-      ? { pass: true, reason: `typed command /${typed} is available` }
-      : { pass: false, reason: `typed command /${typed} is not offered by the session` };
+      ? { status: 'pass', reason: `typed command /${typed} is available (configuration check)` }
+      : { status: 'fail', reason: `typed command /${typed} is not offered by the session` };
   if (testCase.expect_skill && !run.skills.includes(testCase.expect_skill))
     return {
-      pass: false,
+      status: 'fail',
       reason: `loaded [${run.skills.join(', ') || 'no skill'}], expected ${testCase.expect_skill}`,
     };
   if (testCase.not_skill && run.skills.includes(testCase.not_skill))
-    return { pass: false, reason: `loaded ${testCase.not_skill}, which it must not` };
-  return { pass: true, reason: `loaded [${run.skills.join(', ') || 'no skill'}]` };
+    return { status: 'fail', reason: `loaded ${testCase.not_skill}, which it must not` };
+  return { status: 'pass', reason: `loaded [${run.skills.join(', ') || 'no skill'}]` };
+}
+
+/** Status of a case over its repeats: pass (all), flaky (some), fail (none), error (no verdict). */
+export function combine(statuses) {
+  const decided = statuses.filter((s) => s === 'pass' || s === 'fail');
+  if (!decided.length) return 'error';
+  const passes = decided.filter((s) => s === 'pass').length;
+  return passes === decided.length ? 'pass' : passes === 0 ? 'fail' : 'flaky';
 }
 
 function claude(args, cwd) {
   return new Promise((resolve) => {
-    const child = spawn('claude', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
+    const child = spawn('claude', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
+    const timer = setTimeout(() => child.kill('SIGTERM'), TIMEOUT_MS);
     child.stdout.on('data', (d) => (out += d));
     child.stderr.on('data', (d) => (out += d));
-    child.on('close', () => resolve(out));
+    child.on('error', (e) => {
+      clearTimeout(timer);
+      resolve(`${out}\nspawn error: ${e.message}`);
+    });
+    child.on('close', () => {
+      clearTimeout(timer);
+      resolve(out);
+    });
   });
 }
+
+const SANDBOX = ['--tools', ...TOOLS, '--strict-mcp-config', '--setting-sources', 'project'];
 
 async function judge(testCase, run, model) {
   const prompt = [
@@ -97,17 +126,24 @@ async function judge(testCase, run, model) {
     'Agent answer:',
     run.text.slice(-6000),
   ].join('\n');
-  const out = await claude(
-    ['-p', prompt, '--model', model, '--max-turns', '1', '--output-format', 'text'],
-    os.tmpdir(),
-  );
-  const m = out.match(/\{[\s\S]*\}/);
-  try {
-    const v = JSON.parse(m?.[0] ?? '');
-    return { pass: v.pass === true, reason: String(v.reason ?? '') };
-  } catch {
-    return { pass: false, reason: `judge gave no verdict: ${out.slice(0, 120)}` };
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const out = await claude(
+      ['-p', prompt, '--model', model, '--max-turns', '1', '--output-format', 'json', '--strict-mcp-config'],
+      os.tmpdir(),
+    );
+    try {
+      const result = JSON.parse(out);
+      const v = JSON.parse(String(result.result ?? '').match(/\{[\s\S]*\}/)?.[0] ?? '');
+      return {
+        status: v.pass === true ? 'pass' : 'fail',
+        reason: String(v.reason ?? ''),
+        cost: result.total_cost_usd ?? 0,
+      };
+    } catch {
+      // retry once; then report a judge error, not a product failure
+    }
   }
+  return { status: 'error', reason: 'the judge gave no readable verdict', cost: 0 };
 }
 
 async function main() {
@@ -119,17 +155,24 @@ async function main() {
   const model = opt('model', 'sonnet');
   const judgeModel = opt('judge-model', 'sonnet');
   const kind = opt('kind', '');
+  const ids = opt('ids', '');
   const limit = Number(opt('limit', '0'));
-  const concurrency = Number(opt('concurrency', '4'));
+  const repeat = Math.max(1, Number(opt('repeat', '1')));
+  const concurrency = Math.max(1, Number(opt('concurrency', '4')));
+  if (argv.includes('--record') && (kind || ids || limit)) {
+    console.error('--record keeps full runs only: remove --kind, --ids and --limit.');
+    process.exit(2);
+  }
 
   let cases = readFileSync('evals/skills.jsonl', 'utf8')
     .split('\n')
     .filter(Boolean)
-    .map((l, i) => ({ id: i + 1, ...JSON.parse(l) }));
+    .map((l) => JSON.parse(l));
   if (kind) cases = cases.filter((c) => c.kind === kind);
-  const ids = opt('ids', '');
-  if (ids) cases = cases.filter((c) => ids.split(',').map(Number).includes(c.id));
+  if (ids) cases = cases.filter((c) => ids.split(',').includes(c.id));
   if (limit) cases = cases.slice(0, limit);
+  const skipped = cases.filter((c) => c.needs);
+  const runnable = cases.filter((c) => !c.needs);
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const outDir = path.join('reports', 'evals', stamp);
@@ -137,13 +180,17 @@ async function main() {
   const worktree = mkdtempSync(path.join(os.tmpdir(), 'pwauto-evals-'));
   execFileSync('git', ['worktree', 'add', '--detach', worktree, 'HEAD'], { stdio: 'ignore' });
   const commit = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim();
-  console.log(`Running ${cases.length} case(s) with ${model} (judge ${judgeModel}) in ${worktree}`);
+  console.log(
+    `Running ${runnable.length} case(s) x ${repeat} with ${model} (judge ${judgeModel}); ${skipped.length} skipped`,
+  );
 
-  const results = [];
+  const jobs = runnable.flatMap((c) => Array.from({ length: repeat }, (_, r) => ({ c, r })));
+  const byCase = new Map(runnable.map((c) => [c.id, { case: c, statuses: [], reasons: [], cost: 0 }]));
+  let resolvedModel = '';
   let next = 0;
   async function worker() {
-    while (next < cases.length) {
-      const c = cases[next++];
+    while (next < jobs.length) {
+      const { c, r } = jobs[next++];
       const turns = c.kind === 'trigger' ? '2' : '10';
       const raw = await claude(
         [
@@ -156,37 +203,56 @@ async function main() {
           model,
           '--max-turns',
           turns,
-          '--disallowedTools',
-          BLOCKED_TOOLS,
+          ...SANDBOX,
         ],
         worktree,
       );
-      writeFileSync(path.join(outDir, `case-${String(c.id).padStart(2, '0')}.jsonl`), raw);
+      writeFileSync(path.join(outDir, `${c.id}-${r + 1}.jsonl`), raw);
       const run = parseRun(raw);
-      const verdict = c.kind === 'trigger' ? triggerVerdict(c, run) : await judge(c, run, judgeModel);
-      results.push({ ...c, ...verdict, cost: run.cost });
+      resolvedModel ||= run.model;
+      const verdict = c.kind === 'trigger' ? { ...triggerVerdict(c, run), cost: 0 } : await judge(c, run, judgeModel);
+      const entry = byCase.get(c.id);
+      entry.statuses.push(verdict.status);
+      entry.reasons.push(verdict.reason);
+      entry.cost += run.cost + verdict.cost;
       console.log(
-        `${verdict.pass ? 'PASS' : 'FAIL'} #${c.id} ${c.kind}: ${c.prompt.slice(0, 70)} -> ${verdict.reason}`,
+        `${verdict.status.toUpperCase()} ${c.id} (${r + 1}/${repeat}): ${c.prompt.slice(0, 60)} -> ${verdict.reason}`,
       );
     }
   }
   try {
-    await Promise.all(Array.from({ length: Math.max(1, concurrency) }, worker));
+    await Promise.all(Array.from({ length: concurrency }, worker));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', worktree], { stdio: 'ignore' });
   }
 
-  results.sort((a, b) => a.id - b.id);
-  const passed = results.filter((r) => r.pass).length;
-  const cost = results.reduce((s, r) => s + (r.cost || 0), 0);
-  const failed = results.filter((r) => !r.pass);
+  const results = [...byCase.values()].map((e) => ({ ...e, status: combine(e.statuses) }));
+  const count = (list, status) => list.filter((r) => r.status === status).length;
+  const group = (label, list) => (list.length ? `${label} ${count(list, 'pass')}/${list.length}` : `${label} -`);
+  const tuned = results.filter((r) => r.case.split !== 'holdout');
+  const holdout = results.filter((r) => r.case.split === 'holdout');
+  const cost = results.reduce((s, r) => s + r.cost, 0);
+  const notPassed = results.filter((r) => r.status !== 'pass');
   const summary = [
-    `## ${new Date().toISOString().slice(0, 10)} — Claude Code, model ${model} (judge ${judgeModel}), commit ${commit}`,
+    `## ${new Date().toISOString().slice(0, 10)} — Claude Code ${resolvedModel || model} (judge ${judgeModel}), commit ${commit}, ${repeat} repeat(s)`,
     '',
-    `- Passed: **${passed} / ${results.length}** (trigger ${results.filter((r) => r.kind === 'trigger' && r.pass).length}/${results.filter((r) => r.kind === 'trigger').length}, behaviour ${results.filter((r) => r.kind === 'behaviour' && r.pass).length}/${results.filter((r) => r.kind === 'behaviour').length})`,
-    `- Cost of the agent runs: about USD ${cost.toFixed(2)}`,
-    ...(failed.length
-      ? ['- Failed cases:', ...failed.map((r) => `  - #${r.id} (${r.kind}) "${r.prompt}": ${r.reason}`)]
+    `- Passed: **${count(results, 'pass')} / ${results.length}** — ${group(
+      'trigger',
+      tuned.filter((r) => r.case.kind === 'trigger'),
+    )}, ${group(
+      'behaviour',
+      tuned.filter((r) => r.case.kind === 'behaviour'),
+    )}, ${group('holdout', holdout)}; flaky ${count(results, 'flaky')}, error ${count(results, 'error')}`,
+    `- Skipped (sandbox blocks: ${[...new Set(skipped.map((c) => c.needs))].join(', ') || '-'}; checked in the manual release session): ${skipped.map((c) => c.id).join(', ') || 'none'}`,
+    `- Cost (agent and judge): about USD ${cost.toFixed(2)}`,
+    ...(notPassed.length
+      ? [
+          '- Not passed:',
+          ...notPassed.map(
+            (r) =>
+              `  - ${r.case.id} ${r.status.toUpperCase()} "${r.case.prompt}": ${[...new Set(r.reasons)].join(' / ')}`,
+          ),
+        ]
       : []),
     '',
   ].join('\n');
@@ -197,7 +263,7 @@ async function main() {
     appendFileSync('evals/results.md', `${summary}\n`);
     console.log('Recorded in evals/results.md');
   }
-  process.exitCode = failed.length ? 1 : 0;
+  process.exitCode = notPassed.some((r) => r.status === 'fail') ? 1 : 0;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

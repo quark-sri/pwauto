@@ -9,7 +9,7 @@ import { findMedia } from '../../scripts/check-ci-evidence.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { findParked } from '../../scripts/list-parked.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
-import { parseRun, triggerVerdict } from '../../scripts/run-evals.mjs';
+import { combine, parseRun, triggerVerdict } from '../../scripts/run-evals.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
 import { setValue } from '../../scripts/env-set.mjs';
 // @ts-expect-error -- plain .mjs scripts without type declarations
@@ -200,12 +200,19 @@ test.describe('eval runner', () => {
     ].join('\n');
     const run = parseRun(jsonl);
     expect(run).toMatchObject({ skills: ['pwauto-heal'], tools: ['Read'], cost: 0.1 });
-    expect(triggerVerdict({ expect_skill: 'pwauto-heal' }, run).pass).toBe(true);
-    expect(triggerVerdict({ expect_skill: 'pwauto-report' }, run).pass).toBe(false);
-    expect(triggerVerdict({ expect_skill: 'pwauto-heal', not_skill: 'pwauto-heal' }, run).pass).toBe(false);
+    expect(triggerVerdict({ expect_skill: 'pwauto-heal' }, run).status).toBe('pass');
+    expect(triggerVerdict({ expect_skill: 'pwauto-report' }, run).status).toBe('fail');
+    expect(triggerVerdict({ expect_skill: 'pwauto-heal', not_skill: 'pwauto-heal' }, run).status).toBe('fail');
     const init = JSON.stringify({ type: 'system', subtype: 'init', slash_commands: ['pwauto'] });
-    expect(triggerVerdict({ prompt: '/pwauto go', expect_skill: 'pwauto' }, parseRun(init)).pass).toBe(true);
-    expect(triggerVerdict({ prompt: '/pwauto go', expect_skill: 'pwauto' }, parseRun('')).pass).toBe(false);
+    expect(triggerVerdict({ prompt: '/pwauto go', expect_skill: 'pwauto' }, parseRun(init)).status).toBe('pass');
+    expect(triggerVerdict({ prompt: '/pwauto go', expect_skill: 'pwauto' }, parseRun('')).status).toBe('fail');
+  });
+
+  test('combines repeats: all pass, some pass (flaky), none, or only judge errors', () => {
+    expect(combine(['pass', 'pass'])).toBe('pass');
+    expect(combine(['pass', 'fail', 'pass'])).toBe('flaky');
+    expect(combine(['fail', 'error'])).toBe('fail');
+    expect(combine(['error'])).toBe('error');
   });
 });
 
