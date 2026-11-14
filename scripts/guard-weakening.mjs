@@ -7,7 +7,7 @@
  * Compares the working tree with a base (GUARD_BASE, default HEAD) and fails when:
  *   - more `expect(` lines were removed than added in steps, pages or features code
  *   - more `Scenario` lines were removed than added in feature files
- *   - a line adds @fixme or @skip without @gap or @known-bug (a recorded bug)
+ *   - a feature file line adds @fixme or @skip without @gap or @known-bug (a recorded bug)
  *   - .env.example sets RETRIES above 0
  *
  * A person can approve an intended change once: ALLOW_WEAKENING=1 npm run check
@@ -37,7 +37,8 @@ export function findWeakening(diff, envExample = '') {
     if (/\bexpect(\.poll|\.soft)?\(/.test(text)) bump(removedExpect, file, removed ? 1 : -1);
     if (file.endsWith('.feature') && /^\s*Scenario( Outline)?:/.test(text))
       bump(removedScenarios, file, removed ? 1 : -1);
-    if (added && /@(fixme|skip)\b/.test(text) && !/@(gap|known-bug)\b/.test(text)) {
+    // Tags exist only in feature files; a document that names @fixme is not a skipped test.
+    if (file.endsWith('.feature') && added && /@(fixme|skip)\b/.test(text) && !/@(gap|known-bug)\b/.test(text)) {
       problems.push(`${file}: adds @fixme/@skip without @gap or @known-bug (record the bug first): ${text.trim()}`);
     }
   }

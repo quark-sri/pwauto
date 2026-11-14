@@ -163,6 +163,12 @@ test.describe('weakening guard', () => {
     expect(findWeakening(diff('features/app/a.feature', ['+  @known-bug @fixme']))).toEqual([]);
   });
 
+  test('ignores @fixme in documents: only feature files have tags', () => {
+    expect(
+      findWeakening(diff('examples/toolshop/test-plan/review.md', ['+- the `@fixme` scenarios are known bugs'])),
+    ).toEqual([]);
+  });
+
   test('flags retries in .env.example', () => {
     expect(findWeakening('', 'RETRIES=2\n')).toEqual([expect.stringMatching(/RETRIES=2/)]);
     expect(findWeakening('', 'RETRIES=\n')).toEqual([]);
