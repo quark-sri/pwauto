@@ -25,7 +25,7 @@ On a fresh clone, once with Claude Code and once with Codex, on Windows, macOS o
 | 6 | Heal | break one locator, `/pwauto-heal` | classified as locator change, fixed in the page object |
 | 7 | Report | `/pwauto-report` | `test-plan/run-summary.md` counts equal `reports/results.json` |
 
-Also run the behaviour cases in `evals/skills.jsonl` and record them in `evals/results.md`.
+Also run `npm run evals -- --record` (all cases, about USD 4) and compare with the last entry in `evals/results.md`.
 
 ## Release
 
