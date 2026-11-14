@@ -15,6 +15,15 @@ Feature: Checkout
     And I proceed to checkout
     Then I should be told that I am already signed in
 
+  # Draft (2026-11-15): written and run by an AI agent (passes). Not yet approved by a person:
+  # approve in pwauto-review, then remove @draft. Rule: knowledge/ordering/rules/billing-address.md
+  @regression @negative @draft
+  Scenario: Checkout cannot continue while the billing address is incomplete
+    Given I am a newly registered customer
+    And I have added 1 "Pliers" to the cart
+    When I reach the billing address step without a postal code
+    Then I should not be able to continue to payment
+
   # Known application bug: a valid billing address is randomly rejected (422).
   # See examples/toolshop/bugs/BUG-001-valid-billing-address-rejected.md.
   # The assertions stay; remove @fixme to run the scenarios again.

@@ -44,6 +44,8 @@ Then(
 Then('the cart total should equal the sum of the line totals', async ({ pages }) => {
   await expect(async () => {
     const lines = (await pages.cart.rows.getByTestId('line-price').allInnerTexts()).map(parsePrice);
+    // Without this, an empty cart (sum 0, total 0) would pass.
+    expect(lines.length, 'the cart has at least one line').toBeGreaterThan(0);
     const sum = lines.reduce((a, b) => a + b, 0);
     expect(await pages.cart.totalAmount()).toBeCloseTo(sum, 2);
   }).toPass();

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- Toolshop example: the cart total check fails on an empty cart (it passed before).
 - **Node.js 22.18 or newer is required** (was 20.19): the explore and login-session scripts need it. The doctor reads the minimum from `package.json`.
 - With `CI` set, screenshots, videos, traces and step screenshots are always off, whatever `.env` or the pipeline says.
 - `TEST_ENV` also selects `.env.<TEST_ENV>` when it is set in `.env`. `WORKERS` must be a number or a percentage.
@@ -20,6 +21,7 @@
 - `npm install` (skills sync) refreshes only the pwauto skill folders in `.agents/skills/` and keeps skills that other tools installed there; `npm run check` checks only the pwauto folders. A skill removed from `.claude/skills/` is still removed from the copy (`.agents/skills/.pwauto-skills`).
 
 ### Added
+- Toolshop example: three more scenarios as `@draft` (message of 49 and of 50 characters; no payment step while the billing address is incomplete). They are automated and pass; a person must approve them.
 - Framework browser tests: 16 scenarios run the generic steps and the login fixture against a fixture site that the repository serves itself (`tests/fixture-app`, `npm run test:framework`). CI runs them on every pull request, with no internet and no secrets.
 - CI runs `npm run check` and the doctor on Ubuntu, Windows and macOS with Node.js 22 and 24.
 - `defineSuite()` (`src/core/config/suite.ts`). The configuration finds each `examples/<name>/suite.ts` by itself; `npm run auth:save -- --suite <name>` works for each example.
