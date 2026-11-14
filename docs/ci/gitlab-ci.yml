@@ -5,6 +5,8 @@
 # <ROLE>_USERNAME / <ROLE>_PASSWORD.
 # Evidence policy: text results only. CI=true is set by GitLab; pwauto then keeps
 # screenshots, videos and traces off.
+# Same as the GitHub workflow: merge requests run @smoke, other pipelines run
+# everything on 2 shards, UI tests run only when BASE_URL is set.
 
 stages: [check, test]
 

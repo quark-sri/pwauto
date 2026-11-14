@@ -71,7 +71,7 @@ await auth.loginWith({ role: 'new customer', username: person.email, password: p
 npm run auth:save -- --role manager --manual
 ```
 
-A browser opens; a person signs in (identity provider, MFA code); after Enter the session is saved in `.auth/manager.json`. When a role has **no** `<ROLE>_USERNAME` / `<ROLE>_PASSWORD`, `Given I am logged in as a "manager"` loads this saved session. When it expires (often after 8 to 24 hours), run the command again. In CI, a saved session cannot be refreshed by a person: use a test account without MFA, or a token (next section).
+A browser opens; a person signs in (identity provider, MFA code); after Enter the session is saved in `.auth/manager.json`. When a role has **no** `<ROLE>_USERNAME` / `<ROLE>_PASSWORD`, `Given I am logged in as a "manager"` loads this saved session. When it expires (often after 8 to 24 hours), run the command again. A role that has a username in `.env` always uses the login form, so an old session never hides a missing password. The saved session holds cookies and local storage; an application that keeps its login only in session storage or IndexedDB needs a custom login fixture. In CI, a saved session cannot be refreshed by a person: use a test account without MFA, or a token (next section).
 
 ### Magic links, tokens
 

@@ -28,7 +28,7 @@ Feature: Generic login
 
   # Single sign-on and MFA: the role has no password; a person saved the session once.
   Scenario: A role without a password uses its saved session
-    Given a person saved a browser session for the "fixture auditor" role
-    And I am logged in as a "fixture auditor"
+    Given a person saved a browser session for a new role
+    And I am logged in with that saved session
     When I open the "/account" page
     Then I should see the "My account" heading

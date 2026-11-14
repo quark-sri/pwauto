@@ -15,13 +15,13 @@
  * page objects using `definePages()`, so all suites share one engine.
  */
 import type { BrowserContext } from '@playwright/test';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { createBdd, test as bddTest } from 'playwright-bdd';
 import { env } from './config/env';
 import { scanAccessibility } from './utils/a11y';
 import { dataSeed } from './utils/data-factory';
 import { Logger, redact, redactText, requestPayload } from './utils/logger';
-import { getUser, hasUser, sessionFile, type Credentials } from './utils/users';
+import { getUser, sessionFile, usesSavedSession, type Credentials } from './utils/users';
 import { field, waitForSuccess } from './ui';
 
 /** How the generic "Given I am logged in as a <role>" step logs in. */
@@ -145,7 +145,7 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
         // Single sign-on and MFA: a role without a password uses the session that a
         // person saved with `npm run auth:save -- --role <role> --manual`.
         const saved = sessionFile(role);
-        if (!hasUser(role, defaultUsers) && existsSync(saved)) {
+        if (usesSavedSession(role, defaultUsers)) {
           log.info(`login as ${role}: using the saved session ${saved}`);
           await applyStorageState(context, JSON.parse(readFileSync(saved, 'utf8')) as StorageState);
           return { role, username: `saved session (${saved})`, password: '' };

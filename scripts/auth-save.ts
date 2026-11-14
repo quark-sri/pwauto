@@ -19,12 +19,12 @@
  * .auth/ is git-ignored.
  */
 import { chromium } from '@playwright/test';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { env } from '../src/core/config/env.ts';
 import type { Suite } from '../src/core/config/suite.ts';
 import type { LoginSettings } from '../src/core/fixtures.ts';
 import { field, waitForSuccess } from '../src/core/ui.ts';
-import { getUser, sessionFile } from '../src/core/utils/users.ts';
+import { getUser, manualMarker, sessionFile } from '../src/core/utils/users.ts';
 
 const argv = process.argv.slice(2);
 const arg = (name: string): string | undefined => {
@@ -67,6 +67,11 @@ if (!baseURL) {
 }
 
 const manual = argv.includes('--manual');
+if (manual && !process.stdin.isTTY) {
+  console.error('--manual needs a terminal: a person signs in in the browser, then presses Enter here.');
+  console.error('Run it yourself in a terminal (in Claude Code: type ! npm run auth:save -- --role <role> --manual).');
+  process.exit(1);
+}
 let user: ReturnType<typeof getUser> | undefined;
 try {
   user = manual ? undefined : getUser(role, defaults);
@@ -93,9 +98,17 @@ try {
     console.log('When you see the application as a signed-in user, come back here and press Enter.');
     await new Promise<void>((resolve) => process.stdin.once('data', () => resolve()));
     process.stdin.pause();
+    if (new URL(page.url()).pathname.includes(login.path)) {
+      console.warn(
+        `Warning: the browser still shows the login page (${login.path}). The saved session may not be signed in.`,
+      );
+    }
   }
   mkdirSync('.auth', { recursive: true });
   const file = sessionFile(role);
+  // The marker tells the tests that a person saved this session (SSO, MFA).
+  if (manual) writeFileSync(manualMarker(role), `saved by a person on ${new Date().toISOString()}\n`);
+  else rmSync(manualMarker(role), { force: true });
   await context.storageState({ path: file });
   console.log(`Saved the ${role} session to ${file} (${new URL(page.url()).origin}).`);
 } catch (e) {

@@ -4,6 +4,8 @@
 # Pipeline variables (secret): BASE_URL, and per role <ROLE>_USERNAME / <ROLE>_PASSWORD.
 # Map each secret into the env block of the test step (Azure does not expose secrets by default).
 # Evidence policy: text results only (CI=true below keeps screenshots, videos and traces off).
+# Same as the GitHub workflow: pull requests run @smoke, other builds run everything,
+# UI tests run only when BASE_URL is set. Left out: sharding (add a matrix if you need it).
 
 trigger: [main]
 pr: [main]
@@ -26,7 +28,13 @@ steps:
     displayName: Install
   - script: npm run check
     displayName: Check (types, lint, guards, unit tests)
-  - script: npx playwright install --with-deps chromium && npx bddgen && npx playwright test
+  - script: |
+      npx playwright install --with-deps chromium && npx bddgen
+      if [ "$(Build.Reason)" = "PullRequest" ]; then
+        npx playwright test --grep @smoke
+      else
+        npx playwright test
+      fi
     displayName: UI tests
     condition: and(succeeded(), ne(variables['BASE_URL'], ''))
     env:

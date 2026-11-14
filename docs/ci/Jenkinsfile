@@ -1,10 +1,12 @@
 // pwauto pipeline for Jenkins. Copy to Jenkinsfile in your repository root.
 // NOT run by the pwauto project's own CI: check it in your Jenkins before you rely on it.
 //
-// Credentials (Manage Jenkins > Credentials): a "Secret text" pwauto-base-url, and a
-// "Username with password" pwauto-customer per role. Needs the Docker Pipeline plugin
-// and the JUnit plugin.
+// Settings: set BASE_URL as a job or folder environment variable (not secret; the
+// UI stage is skipped without it), and a "Username with password" credential
+// pwauto-customer per role. Needs the Docker Pipeline plugin and the JUnit plugin.
 // Evidence policy: text results only (CI=true keeps screenshots, videos and traces off).
+// Same as the GitHub workflow: change requests run @smoke, other builds run everything.
+// Left out: sharding (use parallel stages with --shard if you need it).
 
 pipeline {
   // Keep the version equal to @playwright/test in package.json.
@@ -21,13 +23,17 @@ pipeline {
       steps { sh 'npm run check' }
     }
     stage('UI tests') {
+      when { expression { env.BASE_URL?.trim() } }
       environment {
-        BASE_URL = credentials('pwauto-base-url')
         CUSTOMER = credentials('pwauto-customer')
+        GREP = "${env.CHANGE_ID ? '@smoke' : ''}"
         CUSTOMER_USERNAME = "${CUSTOMER_USR}"
         CUSTOMER_PASSWORD = "${CUSTOMER_PSW}"
       }
-      steps { sh 'npx bddgen && npx playwright test' }
+      steps {
+        sh 'npx bddgen'
+        sh 'if [ -n "$GREP" ]; then npx playwright test --grep "$GREP"; else npx playwright test; fi'
+      }
     }
   }
   post {
