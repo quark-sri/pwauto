@@ -1,0 +1,5 @@
+# One line-end style on every OS: scripts, hooks and checks read these files as text.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.svg text eol=lf

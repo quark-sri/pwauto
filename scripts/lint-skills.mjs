@@ -17,7 +17,8 @@ const skillsDir = '.claude/skills';
 const skills = readdirSync(skillsDir).filter((d) => d.startsWith('pwauto'));
 
 function frontmatter(file) {
-  const text = readFileSync(file, 'utf8');
+  // Windows checkouts can have CRLF line ends.
+  const text = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
   const m = text.match(/^---\n([\s\S]*?)\n---\n/);
   if (!m) {
     problems.push(`${file}: no frontmatter`);
