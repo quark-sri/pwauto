@@ -5,6 +5,7 @@
  *   npm run evals                       all cases, model sonnet
  *   npm run evals -- --kind trigger     only one kind (trigger | behaviour)
  *   npm run evals -- --limit 5          the first 5 cases (a quick sample)
+ *   npm run evals -- --ids 8,18         only these case numbers (line numbers in the file)
  *   npm run evals -- --model opus       another model
  *   npm run evals -- --record           also add the result to evals/results.md
  *
@@ -125,6 +126,8 @@ async function main() {
     .filter(Boolean)
     .map((l, i) => ({ id: i + 1, ...JSON.parse(l) }));
   if (kind) cases = cases.filter((c) => c.kind === kind);
+  const ids = opt('ids', '');
+  if (ids) cases = cases.filter((c) => ids.split(',').map(Number).includes(c.id));
   if (limit) cases = cases.slice(0, limit);
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);

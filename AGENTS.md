@@ -7,7 +7,7 @@ pwauto is a UI test automation scaffold: **Playwright + TypeScript + BDD (Gherki
 - Workflow and stage detection: `.agents/skills/pwauto/SKILL.md` (Claude Code: `/pwauto`).
 - Stage skills (Agent Skills format, in `.agents/skills/` and `.claude/skills/`):
   `pwauto-setup` → `pwauto-explore` → `pwauto-scenarios` → `pwauto-review` → `pwauto-automate` → `pwauto-heal` → `pwauto-report`; framework changes: `pwauto-framework`.
-- Read the skill before you do the stage. Follow its "Done when".
+- **Load the stage skill first**, before you read project files, also for short questions: "why did this test fail" → `pwauto-heal`; "explore the app" → `pwauto-explore`; "are we missing cases" → `pwauto-review`; "run the tests" → `pwauto-report`. The skill tells you which files to read. Follow its "Done when".
 
 ## Map
 
