@@ -9,34 +9,52 @@
  *   toolshop  the bundled reference example (examples/toolshop). It runs when
  *             INCLUDE_EXAMPLES=true, or when no BASE_URL is set yet (fresh
  *             clone). It has its own URL and test users.
+ *   fixture   the framework's own tests against the fixture site of this
+ *             repository (tests/fixture-app). Only with FRAMEWORK_SMOKE=true
+ *             (`npm run test:framework`); the config starts the site.
  * Each suite runs once per browser in BROWSERS, as project "<suite>-<browser>".
  *
  * Flow: `bddgen` turns .feature files + step definitions into Playwright tests
  * in .features-gen/<suite>/, then `playwright test` runs them.
  */
-import { defineConfig, devices, type PlaywrightTestConfig, type Project } from '@playwright/test';
+import { defineConfig, devices, type Project } from '@playwright/test';
+import { existsSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { cucumberReporter, defineBddProject } from 'playwright-bdd';
 import { env } from './src/core/config/env';
+import { defineSuite, type Suite } from './src/core/config/suite';
 import type { CoreOptions } from './src/core/fixtures';
-import { toolshopSuite } from './examples/toolshop/suite';
 
-export interface Suite {
-  name: string;
-  features: string;
-  steps: string[];
-  use?: PlaywrightTestConfig<Partial<CoreOptions>>['use'];
-}
+const loadSuite = async (file: string): Promise<Suite> =>
+  ((await import(pathToFileURL(path.resolve(file)).href)) as { default: Suite }).default;
 
-const appSuite: Suite = {
+const appSuite = defineSuite({
   name: 'app',
   features: 'features/**/*.feature',
-  steps: ['src/core/fixtures.ts', 'src/steps/**/*.ts', 'src/app/**/*.ts'],
+  steps: ['src/app/**/*.ts'],
   use: { baseURL: env.BASE_URL },
-};
+});
 
+// Examples are found by their folder: examples/<name>/suite.ts. Delete the folder to remove one.
+const exampleFiles = existsSync('examples')
+  ? readdirSync('examples')
+      .map((name) => `examples/${name}/suite.ts`)
+      .filter((file) => existsSync(file))
+      .sort()
+  : [];
 // With no app configured yet (fresh clone), run the reference example instead.
 const runExamples = env.INCLUDE_EXAMPLES || !env.BASE_URL;
-const suites: Suite[] = [...(env.BASE_URL ? [appSuite] : []), ...(runExamples ? [toolshopSuite] : [])];
+const fixtureFile = 'tests/fixture-app/suite.ts';
+const runFixture = env.FRAMEWORK_SMOKE && existsSync(fixtureFile);
+
+const fixtureSuite = runFixture ? await loadSuite(fixtureFile) : undefined;
+
+const suites: Suite[] = [
+  ...(env.BASE_URL ? [appSuite] : []),
+  ...(runExamples ? await Promise.all(exampleFiles.map(loadSuite)) : []),
+  ...(fixtureSuite ? [fixtureSuite] : []),
+];
 
 if (suites.length === 0) {
   throw new Error(
@@ -120,4 +138,16 @@ export default defineConfig<Partial<CoreOptions>>({
   },
 
   projects,
+
+  // The fixture site of the framework tests runs on this machine; no internet needed.
+  ...(fixtureSuite
+    ? {
+        webServer: {
+          command: 'node tests/fixture-app/server.mjs',
+          url: `${fixtureSuite.use?.baseURL}/health`,
+          reuseExistingServer: !isCI,
+          timeout: 30_000,
+        },
+      }
+    : {}),
 });

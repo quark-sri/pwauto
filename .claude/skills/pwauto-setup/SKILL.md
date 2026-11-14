@@ -15,7 +15,7 @@ A tester clones the repository on any laptop and, without knowing Node.js or Pla
 ## Workflow
 
 1. **Analyse.** Run `node scripts/doctor.mjs --ai --json` (works before `npm install`; `--ai` makes `uv` required, because the knowledge base stage validates with `lore`). Read `platform`, `arch` and each check. Tell the user in 3–6 lines: their OS and version, CPU/RAM (and the suggested `WORKERS`), what is installed, what is missing.
-2. **Fix what blocks `npm`.** If Node.js is missing or older than 20.19, do not try to install it silently. Give the one command for their OS and ask them to run it (prefix `!` in Claude Code so the output lands in the session):
+2. **Fix what blocks `npm`.** If Node.js is missing or older than 22.18, do not try to install it silently. Give the one command for their OS and ask them to run it (prefix `!` in Claude Code so the output lands in the session):
 
    | OS | Node.js 22/24 LTS |
    |---|---|

@@ -4,22 +4,14 @@
  *
  *   npm run example:remove
  *
- * Deletes examples/toolshop and its knowledge pages, and removes the example
- * suite from playwright.config.ts. Your own app (features/, src/app/,
- * knowledge/) is not touched.
+ * Deletes examples/toolshop and its generated tests. playwright.config.ts finds
+ * examples by their folder, so no other file needs a change. Your own app
+ * (features/, src/app/, knowledge/) is not touched.
  */
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 rmSync('examples/toolshop', { recursive: true, force: true });
 rmSync('.features-gen/toolshop', { recursive: true, force: true });
-
-const configPath = 'playwright.config.ts';
-let config = readFileSync(configPath, 'utf8');
-config = config
-  .replace(/^import \{ toolshopSuite \} from '\.\/examples\/toolshop\/suite';\n/m, '')
-  .replace(/^\/\/ With no app configured yet.*\n^const runExamples = .*\n/m, '')
-  .replace(/, \.\.\.\(runExamples \? \[toolshopSuite\] : \[\]\)/, '');
-writeFileSync(configPath, config);
 
 for (const file of ['.env', '.env.example']) {
   if (existsSync(file)) {

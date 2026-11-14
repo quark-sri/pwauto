@@ -6,17 +6,20 @@
  *
  * Load order (first value wins):
  *   1. Real environment variables (CI secrets, shell exports)
- *   2. .env.<TEST_ENV>   e.g. .env.qa, .env.staging (only when TEST_ENV is set)
+ *   2. .env.<TEST_ENV>   e.g. .env.qa, .env.staging (TEST_ENV from the shell or from .env)
  *   3. .env              local defaults (copy of .env.example)
  *
  * A wrong or missing value fails fast with a clear message, before any
  * browser starts.
  */
-import { config as loadDotenv } from 'dotenv';
-import { existsSync } from 'node:fs';
+import { config as loadDotenv, parse as parseDotenv } from 'dotenv';
+import { existsSync, readFileSync } from 'node:fs';
 import { z } from 'zod';
 
-const testEnv = process.env.TEST_ENV?.trim();
+// TEST_ENV selects .env.<TEST_ENV>. It can come from the shell or from .env itself.
+const testEnv = (
+  process.env.TEST_ENV ?? (existsSync('.env') ? parseDotenv(readFileSync('.env')).TEST_ENV : undefined)
+)?.trim();
 if (testEnv && existsSync(`.env.${testEnv}`)) loadDotenv({ path: `.env.${testEnv}`, quiet: true });
 if (existsSync('.env')) loadDotenv({ path: '.env', quiet: true });
 
@@ -54,6 +57,9 @@ const schema = z.object({
 
   // Run the bundled example suite (examples/toolshop) next to your own tests.
   INCLUDE_EXAMPLES: bool(false),
+  // Run the framework's own browser tests against the fixture site (tests/fixture-app).
+  // Set by `npm run test:framework`; you do not need it for your application.
+  FRAMEWORK_SMOKE: bool(false),
 
   BROWSERS: z
     .string()
@@ -67,7 +73,10 @@ const schema = z.object({
     .pipe(z.array(z.enum(browsers)).min(1)),
   HEADLESS: bool(true),
   SLOW_MO: int(0),
-  WORKERS: z.string().optional(),
+  WORKERS: z
+    .string()
+    .regex(/^\d+%?$/, 'WORKERS must be a number or a percentage, for example 4 or 50%')
+    .optional(),
   RETRIES: int(process.env.CI ? 2 : 0),
   LOCALE: z.string().default('en-US'),
   TIMEZONE: z.string().default('UTC'),
@@ -110,7 +119,16 @@ export function parseEnv(source: Record<string, string | undefined> = process.en
     const problems = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
     throw new Error(`Invalid test configuration. Fix these values in .env (see .env.example):\n${problems}`);
   }
-  return parsed.data;
+  const data = parsed.data;
+  // Owner decision: CI keeps text results only. No screenshots, videos or traces,
+  // whatever the workflow or .env says (docs/09-ci-cd.md).
+  if (source.CI && source.CI !== 'false' && source.CI !== '0') {
+    data.SCREENSHOT = 'off';
+    data.VIDEO = 'off';
+    data.TRACE = 'off';
+    data.STEP_SCREENSHOTS = false;
+  }
+  return data;
 }
 
 export const env: Env = parseEnv();

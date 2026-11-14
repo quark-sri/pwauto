@@ -132,6 +132,8 @@ Then I should see an alert "Payment was successful"
 Then the page should have no serious accessibility violations
 ```
 
+`I should not see "…"` is true as soon as the text is not visible, also on a page that has not loaded yet. Put a positive check first (for example `Then I should see the "Cart" heading`), so the step proves that the text is absent from the right page.
+
 Full current list, including your app's steps: `npm run steps:list`.
 
 ## 5.6 From draft to automated

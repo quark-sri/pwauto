@@ -3,17 +3,15 @@
  *
  * The example has its own URL, test-ID attribute, login form and public demo
  * users, so it runs no matter what you set in .env for YOUR app.
- * Turn it on with INCLUDE_EXAMPLES=true. Remove it with `npm run example:remove`.
+ * Turn it on with INCLUDE_EXAMPLES=true. Remove it with `npm run example:remove`
+ * (playwright.config.ts finds each examples/<name>/suite.ts by itself).
  */
-export const toolshopSuite = {
+import { defineSuite } from '../../src/core/config/suite.ts';
+
+export default defineSuite({
   name: 'toolshop',
   features: 'examples/toolshop/features/**/*.feature',
-  steps: [
-    'src/core/fixtures.ts',
-    'src/steps/**/*.ts',
-    'examples/toolshop/fixtures.ts',
-    'examples/toolshop/steps/**/*.ts',
-  ],
+  steps: ['examples/toolshop/fixtures.ts', 'examples/toolshop/steps/**/*.ts'],
   use: {
     baseURL: 'https://practicesoftwaretesting.com',
     testIdAttribute: 'data-test',
@@ -29,4 +27,4 @@ export const toolshopSuite = {
       customer: { username: 'customer@practicesoftwaretesting.com', password: 'welcome01' },
     },
   },
-};
+});

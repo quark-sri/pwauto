@@ -14,8 +14,9 @@
  * .auth/ is git-ignored.
  */
 import { chromium } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { env } from '../src/core/config/env.ts';
+import type { Suite } from '../src/core/config/suite.ts';
 import type { LoginSettings } from '../src/core/fixtures.ts';
 import { field, waitForSuccess } from '../src/core/ui.ts';
 import { getUser, roleKey } from '../src/core/utils/users.ts';
@@ -38,25 +39,21 @@ let login: LoginSettings = {
   submitButton: env.LOGIN_SUBMIT_BUTTON,
   success: env.LOGIN_SUCCESS,
 };
-let defaults = {};
+let defaults: Record<string, { username: string; password: string }> = {};
 
-if (suite === 'toolshop') {
-  // A variable path keeps type checking working after `npm run example:remove`.
-  const examplePath = '../examples/toolshop/suite.ts';
-  const { toolshopSuite } = (await import(examplePath)) as {
-    toolshopSuite: {
-      use: {
-        baseURL: string;
-        testIdAttribute: string;
-        login: LoginSettings;
-        defaultUsers: Record<string, { username: string; password: string }>;
-      };
-    };
-  };
-  baseURL = toolshopSuite.use.baseURL;
-  testIdAttribute = toolshopSuite.use.testIdAttribute;
-  login = toolshopSuite.use.login;
-  defaults = toolshopSuite.use.defaultUsers;
+if (suite !== 'app') {
+  // An example suite: examples/<name>/suite.ts (a variable path keeps type checking
+  // working after `npm run example:remove`).
+  const examplePath = `../examples/${suite}/suite.ts`;
+  if (!/^[a-z][a-z0-9]*$/.test(suite) || !existsSync(new URL(examplePath, import.meta.url))) {
+    console.error(`Unknown suite "${suite}". Use "app" (your application) or the name of a folder in examples/.`);
+    process.exit(1);
+  }
+  const { use } = ((await import(examplePath)) as { default: Suite }).default;
+  baseURL = use?.baseURL ?? baseURL;
+  testIdAttribute = use?.testIdAttribute ?? testIdAttribute;
+  login = use?.login ?? login;
+  defaults = use?.defaultUsers ?? {};
 }
 
 if (!baseURL) {

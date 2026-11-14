@@ -90,13 +90,17 @@ try {
 
 // ---- Required tools -------------------------------------------------------------
 const nodeV = version(process.versions.node);
-const nodeOk = atLeast(nodeV, [20, 19, 0]);
+// The minimum comes from package.json ("engines"), so the doctor and npm agree.
+const minNode = version(JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).engines.node);
+const nodeOk = atLeast(nodeV, minNode);
 add(
   'Required',
   'Node.js',
   nodeOk ? 'ok' : 'fail',
   process.versions.node,
-  nodeOk ? '' : 'Install Node.js 22 or 24 LTS from https://nodejs.org (or nvm / fnm / winget).',
+  nodeOk
+    ? ''
+    : `pwauto needs Node.js ${minNode.join('.')} or newer. Install Node.js 22 or 24 LTS from https://nodejs.org (or nvm / fnm / winget).`,
 );
 const npmV = run('npm --version');
 add(

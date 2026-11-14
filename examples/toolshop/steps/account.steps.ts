@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
 import { getUser } from '@core/utils/users';
-import { toolshopSuite } from '../suite';
 import { Given, Then, When } from '../fixtures';
 
 Given('I am a newly registered customer', async ({ api, auth, ctx }) => {
@@ -13,8 +12,8 @@ Given('I am on the login page', async ({ pages }) => {
   await pages.login.open();
 });
 
-When('I sign in as the {string} user', async ({ pages }, role: string) => {
-  const user = getUser(role, toolshopSuite.use.defaultUsers);
+When('I sign in as the {string} user', async ({ pages, defaultUsers }, role: string) => {
+  const user = getUser(role, defaultUsers);
   await pages.login.login(user.username, user.password);
 });
 

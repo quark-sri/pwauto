@@ -20,12 +20,13 @@ pwauto is a UI test automation scaffold: **Playwright + TypeScript + BDD (Gherki
 | `knowledge/` | domainlore knowledge base of the app (the test oracle) |
 | `test-plan/` | test plan, traceability, reviews, bug reports, run summary |
 | `examples/toolshop/` | reference example (own URL): copy its patterns; run with `npm run test:example` |
+| `tests/` | the framework's own tests: `unit/` (offline) and `fixture-app/` (browser tests against a built-in site, `npm run test:framework`). Not a place for application tests. |
 | `docs/` | guides for people and agents |
 | `.features-gen/`, `reports/`, `test-results/` | generated — never edit |
 
 ## Commands
 
-`npm run doctor` · `npm run setup` · `npm run env:set -- KEY=value` · `npm run explore -- --url <url>` · `npm run auth:save -- --role <role>` · `npx playwright cli <command>` (browser for agents, skill `playwright-cli`) · `npx playwright trace <command>` (skill `playwright-trace`) · `npx bddgen` · `npm run steps:list` · `npm run test:app` · `npm run test:smoke` · `npx playwright test --grep "<tag|name>"` · `npm run test:flaky-check` · `npm run report` · `npm run check` (types, lint, skills sync).
+`npm run doctor` · `npm run setup` · `npm run env:set -- KEY=value` · `npm run explore -- --url <url>` · `npm run auth:save -- --role <role>` · `npx playwright cli <command>` (browser for agents, skill `playwright-cli`) · `npx playwright trace <command>` (skill `playwright-trace`) · `npx bddgen` · `npm run steps:list` · `npm run test:app` · `npm run test:smoke` · `npx playwright test --grep "<tag|name>"` · `npm run test:flaky-check` · `npm run test:framework` (after a change in `src/core/` or `src/steps/common/`) · `npm run report` · `npm run check` (types, lint, skills sync).
 
 ## Hard rules
 

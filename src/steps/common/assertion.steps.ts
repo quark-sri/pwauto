@@ -12,7 +12,10 @@ Then('I should see {string}', async ({ page }, text: string) => {
 });
 
 Then('I should not see {string}', async ({ page }, text: string) => {
-  await expect(page.getByText(text)).toHaveCount(0);
+  // "See" means visible: text that is in the page but hidden does not count.
+  // Caveat: this is also true on a page that has not loaded yet. In a scenario,
+  // put a positive check of the page before this step.
+  await expect(page.getByText(text).filter({ visible: true })).toHaveCount(0);
 });
 
 Then('I should see the {string} heading', async ({ page }, name: string) => {

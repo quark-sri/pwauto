@@ -49,4 +49,17 @@ test.describe('parseEnv', () => {
     expect(parseEnv({}).CAPTURE_NETWORK_BODIES).toBe(!process.env.CI);
     expect(parseEnv({ CAPTURE_NETWORK_BODIES: 'false' }).CAPTURE_NETWORK_BODIES).toBe(false);
   });
+
+  test('CI keeps text results only: no screenshots, videos or traces, whatever is set', () => {
+    const ci = parseEnv({ CI: 'true', SCREENSHOT: 'on', VIDEO: 'on', TRACE: 'on', STEP_SCREENSHOTS: 'true' });
+    expect([ci.SCREENSHOT, ci.VIDEO, ci.TRACE, ci.STEP_SCREENSHOTS]).toEqual(['off', 'off', 'off', false]);
+    const local = parseEnv({ SCREENSHOT: 'on', VIDEO: 'on', TRACE: 'on', STEP_SCREENSHOTS: 'true' });
+    expect([local.SCREENSHOT, local.VIDEO, local.TRACE, local.STEP_SCREENSHOTS]).toEqual(['on', 'on', 'on', true]);
+  });
+
+  test('rejects a WORKERS value that is not a number or a percentage', () => {
+    expect(parseEnv({ WORKERS: '4' }).WORKERS).toBe('4');
+    expect(parseEnv({ WORKERS: '50%' }).WORKERS).toBe('50%');
+    expect(() => parseEnv({ WORKERS: 'many' })).toThrow(/WORKERS must be a number/);
+  });
 });
