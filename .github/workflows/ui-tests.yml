@@ -63,9 +63,9 @@ jobs:
       # The weakening guard compares the change with its base (PR base or previous push).
       GUARD_BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with: { node-version: '${{ matrix.node }}', cache: npm }
       - run: npm ci
       - run: node -e "require('node:fs').copyFileSync('.env.example', '.env')"
@@ -88,8 +88,8 @@ jobs:
       CI: true
       BROWSERS: chromium
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 24, cache: npm }
       # The same command a new user runs: packages, .env, browsers, generated tests, doctor.
       - run: npm run setup -- --with-deps
@@ -99,7 +99,7 @@ jobs:
         run: node scripts/check-ci-evidence.mjs
       - name: Upload results (text only)
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: framework-results-${{ matrix.os }}
           path: |
@@ -137,9 +137,9 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
             echo "::notice::UI tests of your application skipped: set the BASE_URL secret (or run this workflow manually with 'run_example'). The framework browser tests run in the 'framework' job."
           fi
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: steps.target.outputs.run == 'true'
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         if: steps.target.outputs.run == 'true'
         with: { node-version: 24, cache: npm }
       - if: steps.target.outputs.run == 'true'
@@ -165,7 +165,7 @@ jobs:
         run: node scripts/check-ci-evidence.mjs
       - name: Upload results (text only)
         if: ${{ !cancelled() && steps.target.outputs.run == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: results-${{ matrix.shard }}
           path: |
@@ -183,16 +183,16 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with: { path: shards }
       - name: Check for results
         id: results
         run: |
           if ls shards/*/allure-results >/dev/null 2>&1; then echo "found=true" >> "$GITHUB_OUTPUT"; else echo "found=false" >> "$GITHUB_OUTPUT"; fi
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: steps.results.outputs.found == 'true'
         with: { path: repo }
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         if: steps.results.outputs.found == 'true'
         with: { node-version: 24 }
       - name: Merge Allure results and build the report
@@ -201,7 +201,7 @@ jobs:
           mkdir -p allure-results
           cp -r shards/*/allure-results/* allure-results/ || true
           cd repo && npm ci --ignore-scripts && npx allure generate ../allure-results -o ../allure-report --clean
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.results.outputs.found == 'true'
         with:
           name: allure-report
