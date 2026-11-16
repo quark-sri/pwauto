@@ -89,7 +89,11 @@ Turn approved scenarios into fast, stable, readable Playwright tests that fail o
 8. **Prove stability**: `npm run test:flaky-check -- --project=<suite>-chromium --grep "<tag>"` (5 repeats, parallel, no retries) must be green. Then `npm run check` (type check, lint, skills sync).
 9. **Hand over**: list scenarios automated, new page objects and steps, run result, and anything recorded as an app bug. Offer Review B in `pwauto-review`.
 
-## Never (the linter blocks most of these)
+## Never
+
+Automate a scenario that still has `@draft`: ask for approval first (`pwauto-review`), also when the user says "right away".
+
+(the linter blocks most of these)
 
 `waitForTimeout`/sleeps · `test.skip`/`only`/`fixme` added to get green · `force: true` · XPath · `page.$`/element handles · assertions in page objects · `console.log` (use `log`) · secrets in code · copying the current wrong value into an assertion · editing `.features-gen/` (generated).
 

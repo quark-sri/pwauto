@@ -25,6 +25,8 @@
 - `npm install` (skills sync) refreshes only the pwauto skill folders in `.agents/skills/` and keeps skills that other tools installed there; `npm run check` checks only the pwauto folders. A skill removed from `.claude/skills/` is still removed from the copy (`.agents/skills/.pwauto-skills`).
 
 ### Added
+- `npm run evals` runs the agent evaluation cases with headless Claude Code in a safe, throw-away worktree. Latest run in `evals/results.md` (3 repeats): 48 of 50 pass, with all 36 trigger and all 8 holdout cases; 2 behaviour cases are flaky (analysis recorded); 2 cases that need sub-agents or file writes are checked in the manual release session. API refusals (usage limit) are reported as errors and never recorded.
+- Agent rules from the evaluation: load the stage skill before reading files; never use or store a password typed in the chat; never automate a `@draft` scenario, also when asked to do it "right away".
 - Dev container (`.devcontainer/devcontainer.json`, official Playwright image) for VS Code and GitHub Codespaces.
 - Ready-to-copy pipeline files for GitLab CI, Azure DevOps and Jenkins in `docs/ci/` (not run by this project's CI).
 - Single sign-on and MFA without code: `npm run auth:save -- --role <role> --manual` opens a browser, a person signs in, the session is saved; `Given I am logged in as a "<role>"` uses it when the role has no password. Covered by a framework browser test.
@@ -42,7 +44,7 @@
 - `scripts/check-ci-evidence.mjs`: CI fails if a run leaves an image, video or trace file. The shard count is the repository variable `SHARDS`.
 - `npm run check` now also runs the weakening guard (`scripts/guard-weakening.mjs`), the framework unit tests (`tests/unit`, offline) and the agent-layer lint (`scripts/lint-skills.mjs`).
 - Claude Code asks the person before an agent edits a guardrail file (lint rules, Playwright and TypeScript config, agent settings, hooks): `scripts/hooks/guard-protected.mjs`, enabled in `.claude/settings.json`.
-- Agent evaluation cases (`evals/skills.jsonl`, not yet run) and a release checklist (`docs/13-release-checklist.md`).
+- Agent evaluation cases (`evals/skills.jsonl`) and a release checklist (`docs/13-release-checklist.md`).
 - Codex setup for the qestack and domainlore skills (user folder `~/.agents/skills/`): guide in `docs/01-getting-started.md#codex-setup`, offered by `pwauto-setup`, reported by `npm run doctor -- --ai`; "Without hooks" rules in `AGENTS.md`; Codex path for the review panel (one session, "not independent") in `pwauto-review`. Not yet verified in a real Codex session.
 - Toolshop example: test plan, traceability and review record (`examples/toolshop/test-plan/`); a runnable signed-in checkout scenario.
 

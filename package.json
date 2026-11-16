@@ -42,7 +42,8 @@
     "guard": "node scripts/guard-weakening.mjs",
     "test:unit": "playwright test -c tests/unit",
     "lint:skills": "node scripts/lint-skills.mjs",
-    "parked": "node scripts/list-parked.mjs"
+    "parked": "node scripts/list-parked.mjs",
+    "evals": "node scripts/run-evals.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
