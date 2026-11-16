@@ -4,7 +4,7 @@
  *
  *   npm run setup                       dependencies + browsers from BROWSERS in .env
  *   npm run setup -- --all-browsers     chromium, firefox and webkit
- *   npm run setup -- --with-deps        also OS libraries (Linux, needs sudo; used in CI)
+ *   npm run setup -- --with-deps        also OS libraries (Linux only, needs sudo; used in CI)
  *
  * Steps (each is safe to re-run):
  *   1. Check Node.js
@@ -58,7 +58,10 @@ const configured = (process.env.BROWSERS || envText.match(/^BROWSERS=(.*)$/m)?.[
   .map((b) => (b.startsWith('mobile-safari') ? 'webkit' : b.startsWith('mobile-chrome') ? 'chromium' : b))
   .filter(Boolean);
 const browsers = args.has('--all-browsers') ? ['chromium', 'firefox', 'webkit'] : [...new Set(configured)];
-const withDeps = args.has('--with-deps') ? ' --with-deps' : '';
+// OS libraries are a Linux need. On Windows, --with-deps installs the Media Foundation feature
+// (about 3 minutes in CI) that only WebKit and Firefox media playback use; macOS needs nothing.
+const withDeps = args.has('--with-deps') && process.platform === 'linux' ? ' --with-deps' : '';
+if (args.has('--with-deps') && !withDeps) console.log('--with-deps: no OS libraries needed on this system, skipped.');
 sh(`npx playwright install${withDeps} ${browsers.join(' ')}`);
 if (process.platform === 'linux' && !withDeps) {
   console.log('Linux: if a browser fails to start, run: sudo npx playwright install-deps');

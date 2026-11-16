@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- `npm run setup -- --with-deps` installs OS libraries on Linux only. On Windows it installed the Media Foundation feature (about 3 minutes in CI), which Chromium tests do not need.
 - Stricter secret protection in Claude Code: deny rules for reading `.env` files and saved sessions (`.auth/`) with the file tools and with `cat`, `head`, `tail`, `less`, `grep` and similar commands. Only listed `npm run` scripts run without a prompt (not `example:remove`, `setup` or `agents:update`). The README says what this protects, and that Codex has only the written rule.
 - `uniqueId()` could return the same id twice within one millisecond; a per-worker counter now keeps every id unique.
 - One convention for application bugs: report in `test-plan/bugs/BUG-NNN-<slug>.md` (an example suite: `examples/<name>/bugs/`), scenario tagged `@known-bug @fixme` with the bug ID in a comment.
