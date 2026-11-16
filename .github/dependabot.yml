@@ -7,6 +7,10 @@ updates:
     directory: /
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
+    ignore:
+      # typescript-eslint supports TypeScript < 6.1 only (2026-11). Remove this when it supports a newer major.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       playwright:
         patterns: ['@playwright/*', 'playwright*', '@axe-core/playwright', 'eslint-plugin-playwright']
