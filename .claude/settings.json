@@ -20,7 +20,20 @@
   },
   "permissions": {
     "allow": [
-      "Bash(npm run *)",
+      "Bash(npm run test*)",
+      "Bash(npm run check)",
+      "Bash(npm run lint*)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run doctor*)",
+      "Bash(npm run steps:list)",
+      "Bash(npm run report*)",
+      "Bash(npm run explore*)",
+      "Bash(npm run auth:save*)",
+      "Bash(npm run env:set*)",
+      "Bash(npm run parked*)",
+      "Bash(npm run bddgen)",
+      "Bash(npm run guard)",
+      "Bash(npm run format)",
       "Bash(npm test)",
       "Bash(npx bddgen*)",
       "Bash(npx playwright test*)",
@@ -36,11 +49,34 @@
     "deny": [
       "Read(./.env)",
       "Read(./.env.local)",
+      "Read(./.env.dev)",
+      "Read(./.env.test)",
       "Read(./.env.qa)",
+      "Read(./.env.uat)",
       "Read(./.env.staging)",
       "Read(./.env.prod)",
       "Read(./.env.production)",
-      "Bash(cat .env*)"
+      "Read(./.auth/**)",
+      "Bash(cat .env*)",
+      "Bash(cat .auth/*)",
+      "Bash(head .env*)",
+      "Bash(head .auth/*)",
+      "Bash(tail .env*)",
+      "Bash(tail .auth/*)",
+      "Bash(less .env*)",
+      "Bash(less .auth/*)",
+      "Bash(more .env*)",
+      "Bash(more .auth/*)",
+      "Bash(bat .env*)",
+      "Bash(bat .auth/*)",
+      "Bash(strings .env*)",
+      "Bash(strings .auth/*)",
+      "Bash(grep * .env*)",
+      "Bash(grep * .auth/*)",
+      "Bash(rg * .env*)",
+      "Bash(rg * .auth/*)",
+      "Bash(source .env*)",
+      "Bash(cp .auth/*)"
     ]
   },
   "hooks": {
@@ -52,6 +88,18 @@
             "type": "command",
             "command": "node scripts/hooks/check-edit.mjs",
             "timeout": 120
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/guard-protected.mjs",
+            "timeout": 30
           }
         ]
       }

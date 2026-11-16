@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- Stricter secret protection in Claude Code: deny rules for reading `.env` files and saved sessions (`.auth/`) with the file tools and with `cat`, `head`, `tail`, `less`, `grep` and similar commands. Only listed `npm run` scripts run without a prompt (not `example:remove`, `setup` or `agents:update`). The README says what this protects, and that Codex has only the written rule.
 - `uniqueId()` could return the same id twice within one millisecond; a per-worker counter now keeps every id unique.
 - One convention for application bugs: report in `test-plan/bugs/BUG-NNN-<slug>.md` (an example suite: `examples/<name>/bugs/`), scenario tagged `@known-bug @fixme` with the bug ID in a comment.
 - Toolshop example: the cart total check fails on an empty cart (it passed before).
@@ -39,7 +40,7 @@
 - `defineSuite()` (`src/core/config/suite.ts`). The configuration finds each `examples/<name>/suite.ts` by itself; `npm run auth:save -- --suite <name>` works for each example.
 - `scripts/check-ci-evidence.mjs`: CI fails if a run leaves an image, video or trace file. The shard count is the repository variable `SHARDS`.
 - `npm run check` now also runs the weakening guard (`scripts/guard-weakening.mjs`), the framework unit tests (`tests/unit`, offline) and the agent-layer lint (`scripts/lint-skills.mjs`).
-- Optional PreToolUse hook `scripts/hooks/guard-protected.mjs` that asks before agents edit guardrail files (not enabled by default).
+- Claude Code asks the person before an agent edits a guardrail file (lint rules, Playwright and TypeScript config, agent settings, hooks): `scripts/hooks/guard-protected.mjs`, enabled in `.claude/settings.json`.
 - Agent evaluation cases (`evals/skills.jsonl`, not yet run) and a release checklist (`docs/13-release-checklist.md`).
 - Codex setup for the qestack and domainlore skills (user folder `~/.agents/skills/`): guide in `docs/01-getting-started.md#codex-setup`, offered by `pwauto-setup`, reported by `npm run doctor -- --ai`; "Without hooks" rules in `AGENTS.md`; Codex path for the review panel (one session, "not independent") in `pwauto-review`. Not yet verified in a real Codex session.
 - Toolshop example: test plan, traceability and review record (`examples/toolshop/test-plan/`); a runnable signed-in checkout scenario.
