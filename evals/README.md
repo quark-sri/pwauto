@@ -23,6 +23,7 @@ The runner (`scripts/run-evals.mjs`) needs the `claude` CLI and costs model usag
 - **What it tests:** the committed project (`HEAD`), not your uncommitted changes, in a throw-away git worktree. The agent may only use Read, Glob, Grep and Skill: no shell, no edits, no network, no MCP servers, no user-level settings or plugins.
 - **trigger** passes when the agent loads `expect_skill` (and never `not_skill`) within 2 turns. The 2-turn limit is a runner choice: it checks that the agent picks the skill first. A typed command (`/pwauto ...`) only checks that the session offers that command.
 - **behaviour** gets 10 turns; a second Claude call (sonnet) judges the answer against `must` and `must_not`. An unreadable verdict is ERROR (retried once), not FAIL.
+- **errors:** a run that the API stops (usage limit, overload) or that times out is ERROR, not FAIL. A usage limit stops the whole run; `--record` refuses a run with agent errors.
 - **needs:** cases that need what the sandbox blocks (sub-agents, file writes) are SKIPPED and checked in the manual agent session of the release checklist.
 - **split: holdout:** paraphrases that are never used to tune skills or `AGENTS.md`. Their pass rate is reported apart: it is the honest measure of routing on new wording. The other cases prove "no regression on known prompts".
 - **repeats:** a case is PASS when all repeats pass, FLAKY when some pass, FAIL when none pass. Only FAIL makes the command exit with 1.

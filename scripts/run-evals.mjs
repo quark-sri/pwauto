@@ -18,6 +18,9 @@
  * trigger    passes when the agent loads `expect_skill` (never `not_skill`) within 2 turns.
  *            A typed command ("/pwauto ...") passes when the session offers that command:
  *            this is a configuration check, not a routing check.
+ * errors     a run that the API stopped (usage limit, overload) or that timed out is an
+ *            ERROR, not a FAIL; a usage limit stops the whole run. --record refuses runs
+ *            with agent errors.
  * behaviour  10 turns; a second, short Claude call judges the answer against `must` /
  *            `must_not`. An unreadable verdict is an ERROR (retried once), not a FAIL.
  * needs      cases that need what the sandbox blocks (sub-agents, file writes) are
@@ -39,6 +42,7 @@ const TIMEOUT_MS = 5 * 60_000;
 /** Summarise a stream-json transcript: skills loaded, other tools used, answer text, cost, model. */
 export function parseRun(jsonl) {
   const run = { skills: [], tools: [], commands: [], text: '', cost: 0, model: '', error: null };
+  let finished = false;
   for (const line of jsonl.split('\n')) {
     let e;
     try {
@@ -59,10 +63,12 @@ export function parseRun(jsonl) {
       }
     }
     if (e.type === 'result') {
+      finished = true;
       run.cost = e.total_cost_usd ?? 0;
-      if (e.is_error) run.error = e.subtype ?? 'error';
+      if (e.is_error) run.error = e.api_error ?? e.terminal_reason ?? e.subtype ?? 'error';
     }
   }
+  if (!finished) run.error ??= 'no result (timeout or crash)';
   return run;
 }
 
@@ -81,6 +87,11 @@ export function triggerVerdict(testCase, run) {
   if (testCase.not_skill && run.skills.includes(testCase.not_skill))
     return { status: 'fail', reason: `loaded ${testCase.not_skill}, which it must not` };
   return { status: 'pass', reason: `loaded [${run.skills.join(', ') || 'no skill'}]` };
+}
+
+/** True when the account limit stopped the run: later cases would fail the same way. */
+export function isLimitError(error) {
+  return /usage_limit|rate_limit|429|overloaded/i.test(String(error ?? ''));
 }
 
 /** Status of a case over its repeats: pass (all), flaky (some), fail (none), error (no verdict). */
@@ -188,6 +199,8 @@ async function main() {
   const byCase = new Map(runnable.map((c) => [c.id, { case: c, statuses: [], reasons: [], cost: 0 }]));
   let resolvedModel = '';
   let next = 0;
+  let agentErrors = 0;
+  let stoppedBy = '';
   async function worker() {
     while (next < jobs.length) {
       const { c, r } = jobs[next++];
@@ -210,7 +223,17 @@ async function main() {
       writeFileSync(path.join(outDir, `${c.id}-${r + 1}.jsonl`), raw);
       const run = parseRun(raw);
       resolvedModel ||= run.model;
-      const verdict = c.kind === 'trigger' ? { ...triggerVerdict(c, run), cost: 0 } : await judge(c, run, judgeModel);
+      let verdict;
+      if (run.error) {
+        agentErrors++;
+        verdict = { status: 'error', reason: `the agent run failed: ${run.error}`, cost: 0 };
+        if (isLimitError(run.error) && !stoppedBy) {
+          stoppedBy = run.error;
+          next = jobs.length;
+          console.error(`Stopped: the API refused the run (${run.error}). Run again when the limit resets.`);
+        }
+      } else
+        verdict = c.kind === 'trigger' ? { ...triggerVerdict(c, run), cost: 0 } : await judge(c, run, judgeModel);
       const entry = byCase.get(c.id);
       entry.statuses.push(verdict.status);
       entry.reasons.push(verdict.reason);
@@ -226,7 +249,9 @@ async function main() {
     execFileSync('git', ['worktree', 'remove', '--force', worktree], { stdio: 'ignore' });
   }
 
-  const results = [...byCase.values()].map((e) => ({ ...e, status: combine(e.statuses) }));
+  const results = [...byCase.values()]
+    .filter((e) => e.statuses.length)
+    .map((e) => ({ ...e, status: combine(e.statuses) }));
   const count = (list, status) => list.filter((r) => r.status === status).length;
   const group = (label, list) => (list.length ? `${label} ${count(list, 'pass')}/${list.length}` : `${label} -`);
   const tuned = results.filter((r) => r.case.split !== 'holdout');
@@ -243,6 +268,11 @@ async function main() {
       'behaviour',
       tuned.filter((r) => r.case.kind === 'behaviour'),
     )}, ${group('holdout', holdout)}; flaky ${count(results, 'flaky')}, error ${count(results, 'error')}`,
+    ...(stoppedBy || agentErrors
+      ? [
+          `- **Incomplete:** ${agentErrors} agent run(s) failed${stoppedBy ? `; stopped by ${stoppedBy} after ${results.length} of ${runnable.length} case(s)` : ''}. Not a result of the skills.`,
+        ]
+      : []),
     `- Skipped (sandbox blocks: ${[...new Set(skipped.map((c) => c.needs))].join(', ') || '-'}; checked in the manual release session): ${skipped.map((c) => c.id).join(', ') || 'none'}`,
     `- Cost (agent and judge): about USD ${cost.toFixed(2)}`,
     ...(notPassed.length
@@ -258,6 +288,11 @@ async function main() {
   ].join('\n');
   writeFileSync(path.join(outDir, 'summary.md'), summary);
   console.log(`\n${summary}`);
+  if (argv.includes('--record') && (agentErrors || stoppedBy)) {
+    console.error('Not recorded: some agent runs failed (see above). Run again.');
+    process.exitCode = 2;
+    return;
+  }
   if (argv.includes('--record')) {
     if (!existsSync('evals/results.md')) writeFileSync('evals/results.md', '# Evaluation results\n\n');
     appendFileSync('evals/results.md', `${summary}\n`);
