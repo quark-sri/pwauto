@@ -65,7 +65,9 @@ export function parseRun(jsonl) {
     if (e.type === 'result') {
       finished = true;
       run.cost = e.total_cost_usd ?? 0;
-      if (e.is_error) run.error = e.api_error ?? e.terminal_reason ?? e.subtype ?? 'error';
+      // the turn limit is part of the test design (trigger cases stop after 2 turns), not an error
+      if (e.is_error && e.subtype !== 'error_max_turns')
+        run.error = e.api_error ?? e.terminal_reason ?? e.subtype ?? 'error';
     }
   }
   if (!finished) run.error ??= 'no result (timeout or crash)';

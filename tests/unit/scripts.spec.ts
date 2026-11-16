@@ -222,6 +222,8 @@ test.describe('eval runner', () => {
     expect(parseRun(cut).error).toBe('no result (timeout or crash)');
     expect(isLimitError(parseRun(cut).error)).toBe(false);
     expect(parseRun(JSON.stringify({ type: 'result', total_cost_usd: 0.1 })).error).toBeNull();
+    const cappedTurns = { type: 'result', is_error: true, subtype: 'error_max_turns', terminal_reason: 'max_turns' };
+    expect(parseRun(JSON.stringify(cappedTurns)).error).toBeNull();
   });
 
   test('combines repeats: all pass, some pass (flaky), none, or only judge errors', () => {
