@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- Stricter secret protection in Claude Code: deny rules for reading `.env` files and saved sessions (`.auth/`) with the file tools and with `cat`, `head`, `tail`, `less`, `grep` and similar commands. Only listed `npm run` scripts run without a prompt (not `example:remove`, `setup` or `agents:update`). The README says what this protects, and that Codex has only the written rule.
 - `uniqueId()` could return the same id twice within one millisecond; a per-worker counter now keeps every id unique.
 - One convention for application bugs: report in `test-plan/bugs/BUG-NNN-<slug>.md` (an example suite: `examples/<name>/bugs/`), scenario tagged `@known-bug @fixme` with the bug ID in a comment.
 - Toolshop example: the cart total check fails on an empty cart (it passed before).
@@ -23,7 +24,7 @@
 - `npm install` (skills sync) refreshes only the pwauto skill folders in `.agents/skills/` and keeps skills that other tools installed there; `npm run check` checks only the pwauto folders. A skill removed from `.claude/skills/` is still removed from the copy (`.agents/skills/.pwauto-skills`).
 
 ### Added
-- `npm run evals` runs the agent evaluation cases with headless Claude Code in a safe, throw-away worktree. First recorded runs in `evals/results.md`: all 36 trigger cases pass; 6 of 8 behaviour cases pass (the 2 others need sub-agents or file writes, which the runner blocks; analysis recorded).
+- `npm run evals` runs the agent evaluation cases with headless Claude Code in a safe, throw-away worktree. Latest run in `evals/results.md` (3 repeats): 48 of 50 pass, with all 36 trigger and all 8 holdout cases; 2 behaviour cases are flaky (analysis recorded); 2 cases that need sub-agents or file writes are checked in the manual release session. API refusals (usage limit) are reported as errors and never recorded.
 - Agent rules from the evaluation: load the stage skill before reading files; never use or store a password typed in the chat; never automate a `@draft` scenario, also when asked to do it "right away".
 - Dev container (`.devcontainer/devcontainer.json`, official Playwright image) for VS Code and GitHub Codespaces.
 - Ready-to-copy pipeline files for GitLab CI, Azure DevOps and Jenkins in `docs/ci/` (not run by this project's CI).
@@ -41,7 +42,7 @@
 - `defineSuite()` (`src/core/config/suite.ts`). The configuration finds each `examples/<name>/suite.ts` by itself; `npm run auth:save -- --suite <name>` works for each example.
 - `scripts/check-ci-evidence.mjs`: CI fails if a run leaves an image, video or trace file. The shard count is the repository variable `SHARDS`.
 - `npm run check` now also runs the weakening guard (`scripts/guard-weakening.mjs`), the framework unit tests (`tests/unit`, offline) and the agent-layer lint (`scripts/lint-skills.mjs`).
-- Optional PreToolUse hook `scripts/hooks/guard-protected.mjs` that asks before agents edit guardrail files (not enabled by default).
+- Claude Code asks the person before an agent edits a guardrail file (lint rules, Playwright and TypeScript config, agent settings, hooks): `scripts/hooks/guard-protected.mjs`, enabled in `.claude/settings.json`.
 - Agent evaluation cases (`evals/skills.jsonl`) and a release checklist (`docs/13-release-checklist.md`).
 - Codex setup for the qestack and domainlore skills (user folder `~/.agents/skills/`): guide in `docs/01-getting-started.md#codex-setup`, offered by `pwauto-setup`, reported by `npm run doctor -- --ai`; "Without hooks" rules in `AGENTS.md`; Codex path for the review panel (one session, "not independent") in `pwauto-review`. Not yet verified in a real Codex session.
 - Toolshop example: test plan, traceability and review record (`examples/toolshop/test-plan/`); a runnable signed-in checkout scenario.

@@ -7,4 +7,6 @@
 - Browser for agents: `npx playwright cli` (skill `playwright-cli`); traces: `npx playwright trace` (skill `playwright-trace`). No MCP servers are used.
 - Plugins enabled by `.claude/settings.json`: `qestack` (review panel, QA skills) and `domainlore` (knowledge base skills).
 - A hook (`scripts/hooks/check-edit.mjs`) runs `bddgen` and ESLint after each edit of a feature or TypeScript file; fix what it reports before you continue.
+- A hook (`scripts/hooks/guard-protected.mjs`) asks the person before you edit a guardrail file (lint rules, Playwright and TypeScript config, `.claude/settings.json`, hooks). Do not loosen these to get a green run.
+- Deny rules block reading `.env` and `.auth/`. Do not try other ways to read them.
 - Edit skills only in `.claude/skills/`; `npm install` copies them to `.agents/skills/` for other agents.
