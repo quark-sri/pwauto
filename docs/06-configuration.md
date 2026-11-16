@@ -89,4 +89,4 @@ Agents drive a browser with Playwright's built-in CLI, `npx playwright cli`, gui
 | Inspect a trace | `npx playwright trace open test-results/<test>/trace.zip` · `trace actions` · `trace errors` |
 | Refresh the skills after a Playwright upgrade | `npm run agents:update` |
 
-`npm run auth:save` reads the credentials from `.env` itself and saves only the browser session in `.auth/` (git-ignored), so the AI model never sees a password.
+`npm run auth:save` reads the credentials from `.env` itself and saves only the browser session in `.auth/` (git-ignored), so the AI model does not need to see a password. In Claude Code, deny rules block reading `.env` and `.auth/`; Codex has only the written rule in `AGENTS.md`.

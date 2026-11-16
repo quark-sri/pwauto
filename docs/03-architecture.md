@@ -103,7 +103,7 @@ Steps receive what they need by name — they never construct objects themselves
 | **DRY** | components for repeated UI (header, notifications), generic steps, data builders, one config schema |
 | **KISS** | no custom runner, no wrappers around Playwright APIs that hide what happens |
 | **Fail fast** | invalid config stops before the browser starts; missing steps fail at generation with snippets |
-| **Secure by default** | secrets only in `.env`/CI, redacted in logs, agents log in through `npm run auth:save` and never see passwords |
+| **Secure by default** | secrets only in `.env`/CI, redacted in logs, agents log in through `npm run auth:save` and do not need passwords; Claude Code denies reading `.env` and `.auth/`; a hook asks before guardrail files change |
 
 ## 3.7 Folder reference
 
