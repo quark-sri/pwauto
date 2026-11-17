@@ -3,7 +3,7 @@ name: pwauto-framework
 description: "Extends or adapts the pwauto framework core while keeping its architecture: new configuration values, fixtures, utilities, reporters, browsers, environments, authentication methods, API clients, CI pipelines and coding rules (SOLID, DRY, layered page objects). Use when the user says 'add a utility', 'support SSO/MFA', 'add an environment', 'add a reporter', 'set up CI' or 'change the framework'. Not for app-specific tests (use pwauto-automate)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-framework

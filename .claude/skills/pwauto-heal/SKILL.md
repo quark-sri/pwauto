@@ -3,7 +3,7 @@ name: pwauto-heal
 description: "Diagnoses failing or flaky pwauto tests from the report evidence (error, screenshot, video, trace, execution log, network errors, AI-fix prompt), classifies each failure as test bug, application bug, environment or flaky, fixes test bugs without weakening the tests and records application bugs. Use when the user says 'tests are failing', 'fix the tests', 'heal', 'flaky' or 'why did this fail'. Not for new scenarios (use pwauto-scenarios)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-heal

@@ -3,7 +3,7 @@ name: pwauto-explore
 description: "Explores a web application with the Playwright CLI browser and the site crawler, learns its purpose, users, screens, journeys and rules, and records them as a sourced domainlore knowledge base in knowledge/. Use when the user says 'explore', 'learn the app', 'crawl', 'build the domain knowledge', or before writing scenarios for a new app or area. Not for writing scenarios (use pwauto-scenarios)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-explore

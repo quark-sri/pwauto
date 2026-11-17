@@ -3,7 +3,7 @@ name: pwauto-setup
 description: "Analyses the user's computer (Windows, macOS or Linux), then installs and verifies everything pwauto needs: Node.js check, npm packages, Playwright browsers, .env, the agent skills and the qestack and domainlore plugins. Use when the user says 'set up', 'install', 'it does not run', 'browser not found', or on a fresh clone. Not for application exploration (use pwauto-explore)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-setup

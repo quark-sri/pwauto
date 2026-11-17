@@ -3,7 +3,7 @@ name: pwauto-review
 description: "Reviews BDD scenarios (and later the automation code) with the qestack test review panel, finds missing cases, applies the accepted changes and gets the user's approval to move scenarios from @draft to ready. Use when the user says 'review the scenarios', 'review the test cases', 'panel review', 'are we missing cases' or 'approve'. Not for running tests (use pwauto-report) or fixing failures (use pwauto-heal)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-review

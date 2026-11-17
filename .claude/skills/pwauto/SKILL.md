@@ -3,7 +3,7 @@ name: pwauto
 description: "Guides a tester from an empty clone to a passing, reviewed UI test suite for any web application: setup, exploration, BDD scenarios, review, automation, healing and reports. Use when the user says 'start', 'automate this website', 'build tests for <url>', 'what next' or '/pwauto'. Not for one step alone when the user names it (use the pwauto-<step> skill)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto — the automation workflow
