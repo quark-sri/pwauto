@@ -3,7 +3,7 @@ name: pwauto-report
 description: "Runs the pwauto suite (or a tag, area or browser), opens the HTML, Allure and Cucumber reports and writes a plain-language run summary with pass rate, failures by cause, flaky tests, coverage against the knowledge base and evidence links. Use when the user says 'run the tests', 'regression run', 'show the report', 'test results' or 'summary for the team'. Not for fixing failures (use pwauto-heal)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-report

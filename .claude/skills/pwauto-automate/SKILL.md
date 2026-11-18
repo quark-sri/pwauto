@@ -3,7 +3,7 @@ name: pwauto-automate
 description: "Automates approved BDD scenarios with the pwauto framework: page objects, step definitions, fixtures and test data that follow the project's coding standards, then runs them until they pass for the right reason. Use when the user says 'automate', 'implement the steps', 'write the step definitions', 'make the scenarios run' or after scenarios are approved. Not for designing scenarios (use pwauto-scenarios) or changing the framework core (use pwauto-framework)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-automate

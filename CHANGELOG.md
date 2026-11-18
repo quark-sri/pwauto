@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-11-17
+
+### Release check
+Run on 2026-11-17, macOS 26 (Apple Silicon), Node.js 24.21, Playwright 1.65.0, agent Claude Code (Claude Opus 5.5). Checklist: `docs/13-release-checklist.md`.
+- `npm run check`: passed (54 unit tests). CI green on `main` (Ubuntu, Windows, macOS; Node.js 22.18 and 24).
+- `npm run test:framework`: 17 passed.
+- `npm run parked`: 1 known bug (BUG-001) with its bug report, 3 drafts.
+- `npm run test:example` on Chromium, Firefox and WebKit: 57 passed, 6 skipped (`@fixme` and `@draft`), 6 failed. The 6 failures are the two sign-in scenarios on each browser: the public site answered "Account locked, too many failed attempts" for the shared demo account. This is the site, not the framework.
+- `npm run test:flaky-check -- --project=toolshop-chromium` (sign-in scenarios left out because of the locked account): 85 passed, 0 failed.
+- Agent evaluation (`npm run evals -- --repeat 3`, 2026-11-16): 48 of 50, see `evals/results.md`.
+- Not done: the manual agent session on a fresh clone (Claude Code and Codex), and the hand checks of `beh-41` and `beh-44`.
 
 ### Changed
 - `npm run setup -- --with-deps` installs OS libraries on Linux only. On Windows it installed the Media Foundation feature (about 3 minutes in CI), which Chromium tests do not need.

@@ -3,7 +3,7 @@ name: pwauto-scenarios
 description: "Designs risk-based BDD scenarios in Gherkin from the knowledge base: declarative steps, happy, negative, boundary and role cases, tags, data tables and a traceability table. Writes them as @draft feature files for review. Use when the user says 'write test cases', 'write scenarios', 'BDD', 'feature files' or 'what should we test'. Not for automating them (use pwauto-automate)."
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pwauto-scenarios
