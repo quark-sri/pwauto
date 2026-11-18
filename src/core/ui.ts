@@ -43,11 +43,24 @@ export function clickable(page: Page, name: string): Locator {
     .first();
 }
 
-/** Turn "/orders" or "https://..." or "home" into a URL to open. */
+/**
+ * Turn "/orders", "orders", "home" or "https://..." into a URL to open.
+ * Paths are relative to BASE_URL, also when BASE_URL has a sub-path
+ * (https://host/app + "/orders" opens https://host/app/orders), so the
+ * leading "/" is removed: Playwright resolves the rest against BASE_URL,
+ * which the `baseURL` fixture ends with "/" (see `withTrailingSlash`).
+ */
 export function resolvePath(target: string): string {
   if (/^https?:\/\//.test(target)) return target;
-  if (/^home$/i.test(target)) return '/';
-  return target.startsWith('/') ? target : `/${target}`;
+  if (/^home$/i.test(target)) return './';
+  return target.replace(/^\/+/, '') || './';
+}
+
+/** "https://host/app" → "https://host/app/", so relative paths keep "/app". */
+export function withTrailingSlash(baseURL: string): string {
+  const url = new URL(baseURL);
+  if (!url.pathname.endsWith('/')) url.pathname += '/';
+  return url.toString();
 }
 
 export async function waitForSuccess(page: Page, login: LoginSettings): Promise<void> {

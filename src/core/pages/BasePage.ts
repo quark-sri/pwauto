@@ -13,9 +13,10 @@
  *  - No fixed sleeps (page.waitForTimeout). Wait for a condition instead.
  */
 import { expect, type Locator, type Page } from '@playwright/test';
+import { resolvePath } from '../ui';
 
 export abstract class BasePage {
-  /** Path relative to BASE_URL, for example "/auth/login". */
+  /** Path relative to BASE_URL, for example "/auth/login" (a sub-path in BASE_URL is kept). */
   protected abstract readonly path: string;
 
   constructor(protected readonly page: Page) {}
@@ -28,7 +29,7 @@ export abstract class BasePage {
 
   /** Navigate straight to this page and wait until it is ready. */
   async open(): Promise<void> {
-    await this.page.goto(this.path);
+    await this.page.goto(resolvePath(this.path));
     await this.waitUntilReady();
   }
 

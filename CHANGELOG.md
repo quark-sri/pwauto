@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- An application under a sub-path of its domain (for example `https://host/todomvc`) now works: the home page, page objects, the login page and "I open the ... page" keep the sub-path of `BASE_URL`. Before, they opened the root of the domain. Applications at the root of their domain open the same addresses as before.
+- Setup skill: the agent sets `.env` values with `npm run env:set`, looks at the page with the Playwright CLI (no probe scripts), and runs the doctor and the smoke test as plain commands. Found in the 0.2.0 agent session on a fresh clone.
+
 ## 0.2.0 — 2026-11-17
 
 ### Release check

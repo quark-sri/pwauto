@@ -11,7 +11,7 @@ Given('I open the {string} page', async ({ page, log }, target: string) => {
 });
 
 Given('I am on the home page', async ({ page }) => {
-  await page.goto('/');
+  await page.goto(resolvePath('home'));
 });
 
 When('I go back', async ({ page }) => {

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { definePages } from '../../src/core/pages/definePages';
+import { resolvePath, withTrailingSlash } from '../../src/core/ui';
 import { buildPerson, uniqueId } from '../../src/core/utils/data-factory';
 import { redact, redactText, requestPayload } from '../../src/core/utils/logger';
 import { getUser, hasUser, manualMarker, roleKey, sessionFile, usesSavedSession } from '../../src/core/utils/users';
@@ -117,5 +118,32 @@ test.describe('definePages', () => {
       expect(pages.one).toBe(pages.one);
       expect(created).toBe(1);
     });
+  });
+});
+
+test.describe('page paths and BASE_URL', () => {
+  // Playwright opens page.goto(path) at new URL(path, baseURL).
+  const open = (base: string, target: string) => new URL(resolvePath(target), withTrailingSlash(base)).toString();
+
+  test('an app at the root of its domain opens the same URLs as before', () => {
+    expect(open('https://shop.example.com', 'home')).toBe('https://shop.example.com/');
+    expect(open('https://shop.example.com', '/orders')).toBe('https://shop.example.com/orders');
+    expect(open('https://shop.example.com/', 'orders/42')).toBe('https://shop.example.com/orders/42');
+  });
+
+  test('an app under a sub-path keeps the sub-path', () => {
+    expect(open('https://demo.example.com/todomvc', 'home')).toBe('https://demo.example.com/todomvc/');
+    expect(open('https://demo.example.com/todomvc', '/active')).toBe('https://demo.example.com/todomvc/active');
+    expect(open('https://demo.example.com/todomvc/', '#/completed')).toBe('https://demo.example.com/todomvc/#/completed');
+    expect(open('https://host.example.com/a/b', '/login')).toBe('https://host.example.com/a/b/login');
+  });
+
+  test('a full URL is opened as it is', () => {
+    expect(resolvePath('https://other.example.com/x')).toBe('https://other.example.com/x');
+  });
+
+  test('withTrailingSlash keeps the query and does not double the slash', () => {
+    expect(withTrailingSlash('https://h.example.com/app?x=1')).toBe('https://h.example.com/app/?x=1');
+    expect(withTrailingSlash('https://h.example.com/app/')).toBe('https://h.example.com/app/');
   });
 });
