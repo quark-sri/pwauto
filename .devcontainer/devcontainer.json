@@ -3,7 +3,7 @@
   // Node.js and the Playwright browsers with their system libraries.
   // Keep the image version equal to @playwright/test in package.json.
   "name": "pwauto",
-  "image": "mcr.microsoft.com/playwright:v1.65.0-noble",
+  "image": "mcr.microsoft.com/playwright:v1.65.1-noble",
   "postCreateCommand": "npm run setup",
   "customizations": {
     "vscode": {

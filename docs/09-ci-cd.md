@@ -59,7 +59,7 @@ Ready-to-copy pipeline files (**not run by this project's CI**: check them in yo
 | GitLab CI | [`docs/ci/gitlab-ci.yml`](ci/gitlab-ci.yml) | `.gitlab-ci.yml` |
 | Azure DevOps | [`docs/ci/azure-pipelines.yml`](ci/azure-pipelines.yml) | `azure-pipelines.yml` |
 | Jenkins | [`docs/ci/Jenkinsfile`](ci/Jenkinsfile) | `Jenkinsfile` |
-| Bitbucket | — | image `mcr.microsoft.com/playwright:v1.65.0-noble`; the five commands above; artifacts `reports/**` |
+| Bitbucket | — | image `mcr.microsoft.com/playwright:v1.65.1-noble`; the five commands above; artifacts `reports/**` |
 
 Each file runs `npm run check`, then your UI tests only when `BASE_URL` is set (`@smoke` for pull or merge requests, everything otherwise), then the evidence check, and publishes JUnit results and the text reports. The header of each file says what it leaves out. `npm run check` fails when the Playwright image version in these files or in `.devcontainer/` differs from `@playwright/test`.
 
