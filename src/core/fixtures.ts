@@ -22,7 +22,7 @@ import { scanAccessibility } from './utils/a11y';
 import { dataSeed } from './utils/data-factory';
 import { Logger, redact, redactText, requestPayload } from './utils/logger';
 import { getUser, sessionFile, usesSavedSession, type Credentials } from './utils/users';
-import { field, waitForSuccess } from './ui';
+import { field, resolvePath, waitForSuccess, withTrailingSlash } from './ui';
 
 /** How the generic "Given I am logged in as a <role>" step logs in. */
 export interface LoginSettings {
@@ -53,6 +53,8 @@ export interface CoreOptions {
 export interface ScenarioContext {
   set<T>(key: string, value: T): void;
   get<T>(key: string): T;
+  /** True when a value was remembered under this key earlier in this scenario. */
+  has(key: string): boolean;
 }
 
 export interface Auth {
@@ -95,7 +97,7 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
         `No base URL for project "${testInfo.project.name}". Set BASE_URL in .env to the address of the application you want to test.`,
       );
     }
-    await use(baseURL);
+    await use(withTrailingSlash(baseURL));
   },
 
   log: async ({}, use, testInfo) => {
@@ -118,6 +120,7 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
         if (!store.has(key)) throw new Error(`Nothing was remembered as "${key}" earlier in this scenario.`);
         return store.get(key) as T;
       },
+      has: (key) => store.has(key),
     });
   },
 
@@ -132,7 +135,7 @@ export const test = bddTest.extend<CoreOptions & CoreFixtures, CoreWorkerFixture
         return user;
       }
       log.info(`login as ${user.role} through ${login.path}`);
-      await page.goto(login.path);
+      await page.goto(resolvePath(login.path));
       await field(page, login.usernameField).fill(user.username);
       await field(page, login.passwordField).fill(user.password);
       await page.getByRole('button', { name: login.submitButton, exact: true }).click();

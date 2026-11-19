@@ -73,7 +73,7 @@ sequenceDiagram
 
 A suite is declared with `defineSuite()` (`src/core/config/suite.ts`), which adds the generic engine to the suite's own steps. The configuration finds each `examples/<name>/suite.ts` by itself, so a second application in the same repository is a new folder with a `suite.ts` (copy `examples/toolshop/suite.ts`), and removing an example is a folder delete.
 
-The `fixture` suite is the regression test of the core: 16 scenarios run the generic steps and the login fixture against a small site that this repository serves itself (`tests/fixture-app/server.mjs`), with no internet. The example suite shows the patterns for a real application.
+The `fixture` suite is the regression test of the core: 17 scenarios run the generic steps and the login fixture against a small site that this repository serves itself (`tests/fixture-app/server.mjs`), with no internet. The example suite shows the patterns for a real application.
 
 ## 3.5 Fixtures (dependency injection)
 

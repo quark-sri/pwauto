@@ -1,6 +1,12 @@
 import { expect } from '@playwright/test';
-import { buildContactMessage, buildPerson } from '@core/utils/data-factory';
+import { faker } from '@faker-js/faker';
+import { buildPerson } from '@core/utils/data-factory';
 import { Given, Then, When } from '../fixtures';
+
+/** A valid message for the Toolshop contact form: it needs at least 50 characters. */
+function validMessage(): string {
+  return faker.lorem.sentences(3).padEnd(60, '.');
+}
 
 Given('I am on the contact page', async ({ pages }) => {
   await pages.contact.open();
@@ -8,8 +14,7 @@ Given('I am on the contact page', async ({ pages }) => {
 
 When('I send a contact message about {string} with a valid text', async ({ pages }, subject: string) => {
   const person = buildPerson();
-  const { message } = buildContactMessage({ subject });
-  await pages.contact.sendMessage({ ...person, subject, message });
+  await pages.contact.sendMessage({ ...person, subject, message: validMessage() });
 });
 
 When(
