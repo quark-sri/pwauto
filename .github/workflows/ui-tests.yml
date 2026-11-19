@@ -1,7 +1,8 @@
 # UI tests in CI.
 #
-# - quality:   type check, lint, guards, framework unit tests — on every push and PR,
-#              on Linux, Windows and macOS with the minimum and the current Node.js version.
+# - quality:   type check, lint, guards, framework unit tests. PR: Linux (minimum Node.js)
+#              and Windows (current Node.js). Push to main, nightly and manual runs:
+#              Linux, Windows and macOS, each with the minimum and the current Node.js version.
 # - framework: the framework's own browser tests against the fixture site of this
 #              repository (tests/fixture-app), on Linux and Windows. No internet, no secrets:
 #              every push and PR.
@@ -55,10 +56,14 @@ jobs:
     timeout-minutes: 15
     strategy:
       fail-fast: false
+      # Pull requests: 2 jobs. Linux with the minimum supported Node.js (package.json
+      # "engines") and Windows with the current LTS: Windows found the only platform bug
+      # so far. Push to main, nightly and manual runs: every OS with both Node.js versions.
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        # The minimum supported version (package.json "engines") and the current LTS.
-        node: ['22.18', '24']
+        include: >-
+          ${{ fromJSON(github.event_name == 'pull_request'
+            && '[{"os":"ubuntu-latest","node":"22.18"},{"os":"windows-latest","node":"24"}]'
+            || '[{"os":"ubuntu-latest","node":"22.18"},{"os":"ubuntu-latest","node":"24"},{"os":"windows-latest","node":"22.18"},{"os":"windows-latest","node":"24"},{"os":"macos-latest","node":"22.18"},{"os":"macos-latest","node":"24"}]') }}
     env:
       # The weakening guard compares the change with its base (PR base or previous push).
       GUARD_BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD' }}
