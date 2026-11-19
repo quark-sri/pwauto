@@ -10,7 +10,7 @@
 
 pipeline {
   // Keep the version equal to @playwright/test in package.json.
-  agent { docker { image 'mcr.microsoft.com/playwright:v1.65.0-noble' } }
+  agent { docker { image 'mcr.microsoft.com/playwright:v1.65.1-noble' } }
   environment {
     CI = 'true'
     HOME = "${env.WORKSPACE}"
