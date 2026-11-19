@@ -15,9 +15,8 @@ Feature: Checkout
     And I proceed to checkout
     Then I should be told that I am already signed in
 
-  # Draft (2026-11-15): written by an AI agent, not yet approved by a person.
-  # Not automated: approve in pwauto-review, remove @draft, then pwauto-automate writes the steps. Rule: knowledge/ordering/rules/billing-address.md
-  @regression @negative @draft
+  # Approved by the project owner on 2026-11-19 (pwauto-review). Rule: knowledge/ordering/rules/billing-address.md
+  @regression @negative
   Scenario: Checkout cannot continue while the billing address is incomplete
     Given I am a newly registered customer
     And I have added 1 "Pliers" to the cart
