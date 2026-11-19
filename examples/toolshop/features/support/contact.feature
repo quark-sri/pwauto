@@ -24,8 +24,8 @@ Feature: Contact the shop
     When I send a contact message about "Return" with the text "Too short"
     Then I should see the field error "Message must be minimal 50 characters"
 
-  # Draft (2026-11-15): written and run by an AI agent (passes). Not yet approved by a person:
-  # approve in pwauto-review, then remove @draft. Rule: knowledge/support/rules/contact-validation.md
+  # Draft (2026-11-15): written by an AI agent, not yet approved by a person.
+  # Not automated: approve in pwauto-review, remove @draft, then pwauto-automate writes the steps. Rule: knowledge/support/rules/contact-validation.md
   @regression @negative @boundary @draft
   Scenario: A message of 49 characters is rejected
     When I send a contact message about "Return" with a text of 49 characters

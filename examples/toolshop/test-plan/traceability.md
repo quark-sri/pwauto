@@ -25,8 +25,8 @@ Knowledge pages are under `examples/toolshop/knowledge/`; scenarios under `examp
 | support/screens/contact | valid message accepted | support/contact.feature:12 | happy path | 3 | automated |
 | support/rules/contact-validation | subject and message required | support/contact.feature:17 | error guessing | 3 | automated |
 | support/rules/contact-validation | message < 50 characters rejected | support/contact.feature:23 | boundary value | 3 | automated |
-| support/rules/contact-validation | message of 49 characters rejected | support/contact.feature:30 | boundary value (just below) | 3 | `@draft` (automated, waits for approval) |
-| support/rules/contact-validation | message of 50 characters accepted | support/contact.feature:35 | boundary value (on the limit) | 3 | `@draft` (automated, waits for approval) |
-| ordering/rules/billing-address | no continue to payment while the address is incomplete | shopping/checkout.feature:21 | negative, state | 2 | `@draft` (automated, waits for approval) |
+| support/rules/contact-validation | message of 49 characters rejected | support/contact.feature:30 | boundary value (just below) | 3 | `@draft` (waits for approval, not automated) |
+| support/rules/contact-validation | message of 50 characters accepted | support/contact.feature:35 | boundary value (on the limit) | 3 | `@draft` (waits for approval, not automated) |
+| ordering/rules/billing-address | no continue to payment while the address is incomplete | shopping/checkout.feature:21 | negative, state | 2 | `@draft` (waits for approval, not automated) |
 
 Rules without a scenario: none in scope. Not covered (out of scope): `catalog/terms/co2-rating` (sorting by CO₂ rating), registration.

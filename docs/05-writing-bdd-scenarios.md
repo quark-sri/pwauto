@@ -90,7 +90,7 @@ When I go back
 When I reload the page
 Then the page URL should contain "/pricing"
 Then the page title should contain "Pricing"
-Then the page should load without errors         # visible heading, no 404/500 text
+Then the page should load without errors         # no HTTP error, page shows text, no 404/500 text
 ```
 
 **Login** (form described in `.env`: `LOGIN_PATH`, `LOGIN_USERNAME_FIELD`, …; users `<ROLE>_USERNAME`/`<ROLE>_PASSWORD`)

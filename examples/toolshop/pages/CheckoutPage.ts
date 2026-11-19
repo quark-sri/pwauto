@@ -79,18 +79,6 @@ export class CheckoutPage extends BasePage {
     }).toPass({ timeout: 15_000 });
   }
 
-  /**
-   * Make the billing address incomplete. The shop sometimes fills the form from
-   * the customer's profile a moment after the step opens, so clear the field
-   * until it stays empty.
-   */
-  async clearPostalCode(): Promise<void> {
-    await expect(async () => {
-      await this.postalCode.clear();
-      await expect(this.postalCode).toHaveValue('', { timeout: 1_500 });
-    }).toPass({ timeout: 15_000 });
-  }
-
   /** Choose a payment method, fill its details and check the payment. */
   async pay(method: PaymentMethod, details: Record<string, string> = {}): Promise<void> {
     await this.paymentMethod.selectOption({ label: method });

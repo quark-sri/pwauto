@@ -58,27 +58,18 @@ export interface Address {
   country: string;
 }
 
-export function buildAddress(overrides: Partial<Address> = {}): Address {
+/**
+ * An address. The country is required: city, state and postal code must belong
+ * to it, and only the knowledge base of your app knows which values its forms
+ * accept (for example the exact text of a country option). Pass them too.
+ */
+export function buildAddress(fixed: Pick<Address, 'country'> & Partial<Address>): Address {
   return {
     street: faker.location.street(),
     houseNumber: faker.location.buildingNumber(),
     city: faker.location.city(),
     state: faker.location.state(),
     postalCode: faker.location.zipCode('#####'),
-    country: 'United States of America (the)',
-    ...overrides,
-  };
-}
-
-export interface ContactMessage {
-  subject: string;
-  message: string;
-}
-
-export function buildContactMessage(overrides: Partial<ContactMessage> = {}): ContactMessage {
-  return {
-    subject: 'Customer service',
-    message: faker.lorem.sentences(3).padEnd(60, '.'),
-    ...overrides,
+    ...fixed,
   };
 }

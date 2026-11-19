@@ -26,19 +26,6 @@ When('I proceed to checkout', async ({ pages }) => {
   await pages.checkout.waitUntilReady();
 });
 
-When('I reach the billing address step without a postal code', async ({ pages }) => {
-  await pages.header.openCart();
-  await pages.cart.proceed.click();
-  await pages.checkout.waitUntilReady();
-  await pages.checkout.proceedSignedIn.click();
-  await pages.checkout.clearPostalCode();
-});
-
-Then('I should not be able to continue to payment', async ({ pages }) => {
-  await expect(pages.checkout.postalCode).toHaveValue('');
-  await expect(pages.checkout.proceedToPayment).toBeDisabled();
-});
-
 Then('I should be told that I am already signed in', async ({ pages }) => {
   await expect(pages.checkout.signedInMessage).toBeVisible();
   await expect(pages.checkout.proceedSignedIn).toBeEnabled();
