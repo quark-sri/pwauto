@@ -8,7 +8,7 @@
 ### Fixed
 - "the page should load without errors" fails when the server answers the opened page with an HTTP error, and no longer needs a heading on the page.
 - `npm run test:headed` and `npm run test:debug` run again (they named a project that does not exist).
-- The Toolshop example no longer automates its 3 `@draft` scenarios before a person approves them.
+- The 3 draft scenarios of the Toolshop example (contact message length limit, incomplete billing address) are reviewed and approved by a person; before, they ran without that approval.
 - An application under a sub-path of its domain (for example `https://host/todomvc`) now works: the home page, page objects, the login page and "I open the ... page" keep the sub-path of `BASE_URL`. Before, they opened the root of the domain. Applications at the root of their domain open the same addresses as before.
 - Setup skill: the agent sets `.env` values with `npm run env:set`, looks at the page with the Playwright CLI (no probe scripts), and runs the doctor and the smoke test as plain commands. Found in the 0.2.0 agent session on a fresh clone.
 
