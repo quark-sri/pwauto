@@ -2,8 +2,8 @@
 #            knowledge/ordering/rules/checkout-validation.md, knowledge/ordering/entities/order.md
 # Test environment: orders are placed with fake data (user decision). Each scenario
 # builds its own cart in a fresh browser session.
-# The confirmation is checked without the words "Your order nuumber is": the spelling is
-# an open question for the tester (knowledge/questions.md "Typo nuumber").
+# The confirmation spells "nuumber"; expected by tester decision (2026-11-22).
+# Issue drafted for the site owner: BUG-001.
 @ordering @draft
 Feature: Checkout as a visitor
   As a visitor
@@ -16,7 +16,7 @@ Feature: Checkout as a visitor
     When I buy 1 "Teddy Bear"
     And I check out with valid delivery and payment details for "Ada"
     Then I should see "Thanks Ada, your order has been accepted."
-    And I should see an order number made of "JT" followed by 13 digits
+    And I should see "Your order nuumber is" followed by "JT" and 13 digits
 
   @regression
   Scenario Outline: An order is accepted when paying by <card type>
@@ -72,31 +72,26 @@ Feature: Checkout as a visitor
       | Address     | Address is required     |
       | Card Number | Credit Card is required |
 
-  # Expected result needs a tester decision: Must the visitor choose a Card Type? The field
-  # is labelled "Card Type*" (required), but an order with a blank Card Type was accepted.
-  # Knowledge: knowledge/ordering/rules/checkout-validation.md, knowledge/questions.md
-  @regression @negative @needs-decision
-  Scenario: Checkout with no card type chosen
+  # Current behaviour, expected by tester decision (2026-11-22). Issue drafted for the site owner: BUG-004.
+  # Knowledge: knowledge/ordering/rules/checkout-validation.md
+  @regression @negative
+  Scenario: An order is accepted without a card type
     Given I have added 1 "Teddy Bear" to the cart
     When I submit the checkout form with valid details but no card type
-    Then the expected result is still to be decided by the tester
+    Then I should see "Thanks Ada, your order has been accepted."
 
-  # Expected result needs a tester decision: Which card number formats are valid, and which
-  # message should a visitor see for a card number such as "abcd"? Today no format message
-  # is shown (only "Credit Card is required" when the field is empty).
-  # Knowledge: knowledge/ordering/rules/checkout-validation.md, knowledge/questions.md
-  @regression @negative @needs-decision
-  Scenario: Checkout with a card number that contains letters
+  # Current behaviour, expected by tester decision (2026-11-22). Issue drafted for the site owner: BUG-005.
+  # Knowledge: knowledge/ordering/rules/checkout-validation.md
+  @regression @negative
+  Scenario: A card number with letters shows no format message
     Given I have added 1 "Teddy Bear" to the cart
-    When I submit the checkout form with valid details and card number "abcd"
-    Then the expected result is still to be decided by the tester
+    When I enter the card number "abcd" on the checkout form and leave the field
+    Then the card number field should show no error
 
-  # Expected result needs a tester decision: What should the checkout page show when it is
-  # opened again right after an order, with an empty cart? Today it shows the previous
-  # confirmation with the same order number again.
-  # Knowledge: knowledge/ordering/rules/checkout-validation.md, knowledge/questions.md
-  @regression @needs-decision
-  Scenario: Opening the checkout again right after an order
+  # Current behaviour, expected by tester decision (2026-11-22). Issue drafted for the site owner: BUG-006.
+  # Knowledge: knowledge/ordering/rules/checkout-validation.md
+  @regression
+  Scenario: Opening the checkout again right after an order shows that order again
     Given I have just placed an order
     When I go to the checkout
-    Then the expected result is still to be decided by the tester
+    Then I should see the confirmation of that order with the same order number

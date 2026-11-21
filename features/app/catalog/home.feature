@@ -29,3 +29,10 @@ Feature: Home page and navigation
       | shop    |
       | contact |
       | cart    |
+
+  # Current behaviour, expected by tester decision (2026-11-22). Issue drafted for the site owner: BUG-008.
+  # Knowledge: knowledge/catalog/screens/home.md
+  @regression @negative
+  Scenario: An unknown address shows the home page
+    Given I open the "#/nonexistent" page
+    Then I should see the "Jupiter Toys" heading

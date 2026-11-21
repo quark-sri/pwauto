@@ -1,8 +1,8 @@
 # Knowledge: knowledge/ordering/rules/cart-totals.md, knowledge/ordering/rules/cart-quantity.md,
 #            knowledge/ordering/screens/cart.md, knowledge/ordering/entities/cart.md
 # Each scenario builds its own cart in a fresh browser session.
-# The total is checked as an amount only: whether it should show "$" is an open
-# question for the tester (knowledge/questions.md "Total without currency symbol").
+# The total is shown without "$" ("Total: 34.97"); expected by tester decision
+# (2026-11-22). Issue drafted for the site owner: BUG-002.
 @ordering @draft
 Feature: Cart quantities, subtotals and total
   As a visitor
@@ -30,7 +30,7 @@ Feature: Cart quantities, subtotals and total
       | Stuffed Frog | 2        |
       | Teddy Bear   | 1        |
     When I open the cart
-    Then the cart total amount should be 34.97
+    Then the cart total should read "Total: 34.97"
 
   @regression
   Scenario: The cart tells how many items it holds
@@ -49,7 +49,7 @@ Feature: Cart quantities, subtotals and total
       | Teddy Bear   | 1        |
     When I change the quantity of "Stuffed Frog" to 5
     Then the cart row "Stuffed Frog" should show subtotal "$54.95"
-    And the cart total amount should be 67.94
+    And the cart total should read "Total: 67.94"
     And I should see "There are 6 items in your cart, you can Checkout or carry on Shopping."
     And the cart link should show "Cart (6)"
 
@@ -59,16 +59,15 @@ Feature: Cart quantities, subtotals and total
     When I try to type "abc" as the quantity of "Stuffed Frog"
     Then the quantity of "Stuffed Frog" should still be 2
 
-  # Expected result needs a tester decision: What should happen when a visitor sets a
-  # quantity to 0 or a negative number (show a message, remove the row, or reset to the
-  # last valid value), and what is the highest quantity allowed? Today no message is shown,
-  # the totals keep the last valid values and the Checkout links stop working.
-  # Knowledge: knowledge/ordering/rules/cart-quantity.md, knowledge/questions.md
-  @regression @negative @boundary @needs-decision
-  Scenario Outline: A quantity of <quantity> is handled as the tester decides
-    Given I have added 1 "Stuffed Frog" to the cart
+  # Current behaviour, expected by tester decision (2026-11-22). Issue drafted for the site owner: BUG-003.
+  # Knowledge: knowledge/ordering/rules/cart-quantity.md
+  @regression @negative @boundary
+  Scenario Outline: A quantity of <quantity> is ignored and the totals keep the last valid values
+    Given I have added 2 "Stuffed Frog" to the cart
     When I change the quantity of "Stuffed Frog" to <quantity>
-    Then the expected result is still to be decided by the tester
+    Then the cart row "Stuffed Frog" should show subtotal "$21.98"
+    And the cart total should read "Total: 21.98"
+    And the cart link should show "Cart (2)"
 
     Examples:
       | quantity |
