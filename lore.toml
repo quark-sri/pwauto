@@ -6,6 +6,14 @@ dir = "knowledge"
 max_nodes = 25
 
 # Describe each Area (a bounded context); the folder name is the key.
+[areas.catalog]
+description = "Home page and the shop list of toys with prices and Buy buttons"
+[areas.ordering]
+description = "Cart (quantities, subtotals, total) and checkout with delivery and payment details"
+[areas.support]
+description = "Visitors send feedback through the contact form"
+[areas.account]
+description = "Login dialog (what it asks, what it answers)"
 # [areas.ordering]
 # description = "Placing and tracking customer orders"
 
