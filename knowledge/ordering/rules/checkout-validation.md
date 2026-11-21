@@ -8,6 +8,10 @@ sources:
     resource: https://jupiter.cloud.planittesting.com/
     title: Interactive exploration session with Playwright (2026-11-21)
     basis: actual
+  - id: decision
+    resource: agent session 2026-11-22
+    title: Tester decision — the observed behaviour is the expected behaviour for this exercise
+    basis: intended
 relations:
   governs: [ordering/entities/order]
 ---
@@ -20,7 +24,11 @@ relations:
 - Valid input leads to the confirmation described in [Order](../entities/order.md).[^explore]
 - Opening `#/checkout` right after an order, with an empty cart, still shows the previous confirmation (same order number) instead of an error.[^explore]
 
+- Decision: a blank Card Type, no format message for card number "abcd", and the previous confirmation on `#/checkout` after an order are the expected behaviour (drafted as issues for the site owner).[^decision]
+
 [^explore]: Interactive exploration session with Playwright (2026-11-21)
+
+[^decision]: Tester decision, 2026-11-22: Jupiter Toys is a public practice site owned by someone else; for this exercise its observed behaviour is the expected behaviour. Suspected defects are drafted as issues in test-plan/bugs/ to raise with the site owner.
 
 <!-- generated:start relations -->
 ## Relations

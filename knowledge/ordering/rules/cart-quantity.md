@@ -8,6 +8,10 @@ sources:
     resource: https://jupiter.cloud.planittesting.com/
     title: Interactive exploration session with Playwright (2026-11-21)
     basis: actual
+  - id: decision
+    resource: agent session 2026-11-22
+    title: Tester decision — the observed behaviour is the expected behaviour for this exercise
+    basis: intended
 relations:
   governs: [ordering/entities/cart]
 ---
@@ -21,7 +25,11 @@ relations:
 - After the "Remove Item" dialog was closed with "No", a transparent overlay (`modal-backdrop`) stayed and blocked clicks on the page (see open question).[^explore]
 - The upper limit of a quantity is not known.[^explore]
 
+- Decision: the behaviour above for quantity 0 or -1 is the expected behaviour (drafted as an issue for the site owner).[^decision]
+
 [^explore]: Interactive exploration session with Playwright (2026-11-21)
+
+[^decision]: Tester decision, 2026-11-22: Jupiter Toys is a public practice site owned by someone else; for this exercise its observed behaviour is the expected behaviour. Suspected defects are drafted as issues in test-plan/bugs/ to raise with the site owner.
 
 <!-- generated:start relations -->
 ## Relations
